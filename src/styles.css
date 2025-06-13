@@ -420,3 +420,12 @@ main {
 .category-outros .item-header {
     background-color: #9932CC;
 }
+
+.watermark {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    color: rgba(0, 0, 0, 0.3);
+    font-size: 0.9rem;
+    font-style: italic;
+}
