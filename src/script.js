@@ -1,9 +1,9 @@
 const items = [
     // Salgados
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
-    { name: "Pratinho de Galinhada", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "galinhada.png" },
+    { name: "Galinhada", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "galinhada.png" },
     { name: "Caldo de Frango", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    { name: "Copo de Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-feijao.png" },
+    { name: "Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-feijao.png" },
     { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "cachorro-quente.png" },
     { name: "Milho Cozido", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "milho.png" },
     { name: "Pipoca de sal", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-sal.png" },
@@ -71,8 +71,16 @@ function renderItems() {
     const container = document.getElementById('items-container');
     container.innerHTML = '';
     
-    let total = 0;
+    let generalTotal = 0;
     let itemsCount = 0;
+    
+    // Calcula o total geral independente dos filtros
+    items.forEach(item => {
+        const price = paymentMethod === 'cash' ? item.cashPrice : item.cardPrice;
+        const quantity = quantities[item.name] || 0;
+        generalTotal += quantity * price;
+        itemsCount += quantity;
+    });
     
     const filteredItems = items.filter(item => {
         const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
@@ -82,7 +90,7 @@ function renderItems() {
     
     if (filteredItems.length === 0) {
         container.innerHTML = '<div class="no-items">Nenhum item encontrado</div>';
-        updateSummary(total, itemsCount);
+        updateSummary(generalTotal, itemsCount);
         return;
     }
     
@@ -90,8 +98,6 @@ function renderItems() {
         const price = paymentMethod === 'cash' ? item.cashPrice : item.cardPrice;
         const quantity = quantities[item.name] || 0;
         const itemTotal = quantity * price;
-        total += itemTotal;
-        itemsCount += quantity;
         
         const itemElement = document.createElement('div');
         itemElement.className = `item-card category-${item.category}`;
@@ -129,7 +135,7 @@ function renderItems() {
         container.appendChild(itemElement);
     });
     
-    updateSummary(total, itemsCount);
+    updateSummary(generalTotal, itemsCount);
     updateOrderSummary();
 }
 
@@ -137,7 +143,6 @@ function changeQuantity(itemName, change) {
     quantities[itemName] += change;
     if (quantities[itemName] < 0) quantities[itemName] = 0;
     renderItems();
-    updateOrderSummary();
 }
 
 function resetAll() {
@@ -146,7 +151,6 @@ function resetAll() {
             quantities[item.name] = 0;
         });
         renderItems();
-        updateOrderSummary();
     }
 }
 

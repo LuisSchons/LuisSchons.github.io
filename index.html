@@ -16,15 +16,6 @@
     </header>
 
     <main>
-        <div class="payment-methods">
-            <button class="payment-btn active" data-method="cash" onclick="setPaymentMethod('cash')">
-                <i class="fas fa-money-bill-wave"></i> Dinheiro/PIX
-            </button>
-            <button class="payment-btn" data-method="card" onclick="setPaymentMethod('card')">
-                <i class="fas fa-credit-card"></i> Cartão (+5%)
-            </button>
-        </div>
-
         <div class="categories">
             <button class="category-btn active" data-category="all">Todos</button>
             <button class="category-btn" data-category="salgados">Salgados</button>
@@ -41,9 +32,19 @@
         <div id="items-container" class="items-grid"></div>
 
         <div class="summary">
-            <div class="total-container">
-                <h2>Total do Pedido</h2>
-                <div class="total-value">R$ <span id="total-value">0.00</span></div>
+            <div class="summary-header">
+                <div class="total-container">
+                    <h2>Total Geral</h2>
+                    <div class="total-value">R$ <span id="total-value">0.00</span></div>
+                </div>
+                <div class="payment-methods">
+                    <button class="payment-btn active" data-method="cash" onclick="setPaymentMethod('cash')">
+                        <i class="fas fa-money-bill-wave"></i> Dinheiro/PIX
+                    </button>
+                    <button class="payment-btn" data-method="card" onclick="setPaymentMethod('card')">
+                        <i class="fas fa-credit-card"></i> Cartão (+5%)
+                    </button>
+                </div>
             </div>
             <div class="summary-details">
                 <div id="items-count">0 itens</div>

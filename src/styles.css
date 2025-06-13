@@ -50,32 +50,6 @@ main {
     padding: 1rem;
 }
 
-.payment-methods {
-    display: flex;
-    gap: 0.5rem;
-    margin: 1rem 0;
-    justify-content: center;
-}
-
-.payment-btn {
-    background-color: white;
-    border: 2px solid var(--if-primary);
-    color: var(--if-primary);
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.payment-btn:hover, .payment-btn.active {
-    background-color: var(--if-primary);
-    color: white;
-}
-
 .categories {
     display: flex;
     gap: 0.5rem;
@@ -162,7 +136,6 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-clip: padding-box;
 }
 
 .item-name-container {
@@ -185,8 +158,8 @@ main {
     height: 50px;
     object-fit: contain;
     margin-left: 10px;
-    border: none;
     background: transparent;
+    border: none;
 }
 
 .item-body {
@@ -263,28 +236,64 @@ main {
     margin-top: 2rem;
 }
 
-.total-container {
+.summary-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.total-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .total-container h2 {
     font-size: 1.2rem;
     color: var(--if-dark);
+    margin: 0;
 }
 
 .total-value {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--if-primary);
+}
+
+.payment-methods {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.payment-btn {
+    background-color: white;
+    border: 2px solid var(--if-primary);
+    color: var(--if-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.payment-btn:hover, .payment-btn.active {
+    background-color: var(--if-primary);
+    color: white;
 }
 
 .summary-details {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
 }
 
 #items-count {
@@ -380,11 +389,17 @@ main {
         grid-template-columns: 1fr;
     }
     
-    .categories, .payment-methods {
-        flex-wrap: wrap;
+    .summary-header {
+        flex-direction: column;
+        align-items: stretch;
     }
     
-    .category-btn, .payment-btn {
+    .payment-methods {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .category-btn {
         padding: 0.5rem;
         font-size: 0.8rem;
     }
