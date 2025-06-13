@@ -7,7 +7,7 @@ const items = [
     { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "cachorro-quente.png" },
     { name: "Milho Cozido", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "milho.png" },
     { name: "Pipoca de sal", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-sal.png" },
-    { name: "Pipoca doce", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-doce.png" },
+    { name: "Pipoca doce", cashPrice: 4.00, cardPrice: 4.20, category: "doces", image: "pipoca-doce.png" },
     { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
     { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
     { name: "Mané Pelado", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "mane-pelado.png" },
