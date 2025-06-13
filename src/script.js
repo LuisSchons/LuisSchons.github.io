@@ -1,12 +1,16 @@
 const items = [
     // Salgados
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
-    { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "cachorro-quente.png" },
-    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
     { name: "Pratinho de Galinhada", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "galinhada.png" },
-    { name: "Copo de Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-feijao.png" },
     { name: "Caldo de Frango", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    // ... (adicionar outros itens com suas imagens)
+    { name: "Copo de Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-feijao.png" },
+    { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "cachorro-quente.png" },
+    { name: "Milho Cozido", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "milho.png" },
+    { name: "Pipoca de sal", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-sal.png" },
+    { name: "Pipoca doce", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-doce.png" },
+    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
+    { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
+    { name: "Mané Pelado", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "mane-pelado.png" },
     { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png" },
     { name: "Água e suco", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-suco.png" },
     { name: "Energético", cashPrice: 8.00, cardPrice: 8.40, category: "bebidas", image: "energetico.png" },
@@ -92,7 +96,7 @@ function renderItems() {
         const itemElement = document.createElement('div');
         itemElement.className = `item-card category-${item.category}`;
         
-        const imagePath = item.image ? `images/${item.image}` : 'images/default.png';
+        const imagePath = item.image ? `../images/${item.image}` : '../images/default.png';
         
         itemElement.innerHTML = `
             <div class="item-header">
@@ -100,7 +104,7 @@ function renderItems() {
                     <div class="item-name">${item.name}</div>
                     <div class="item-price">R$ ${price.toFixed(2)}</div>
                 </div>
-                <img src="${imagePath}" alt="${item.name}" class="item-image" onerror="this.src='images/default.png'">
+                <img src="${imagePath}" alt="${item.name}" class="item-image" onerror="this.src='../images/default.png'">
             </div>
             <div class="item-body">
                 <div class="price-display">
