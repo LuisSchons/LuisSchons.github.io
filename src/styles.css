@@ -1,11 +1,11 @@
 :root {
-    --if-primary: #00833E; /* Verde IF Goiano */
-    --if-secondary: #FFD700; /* Dourado */
-    --if-accent: #FFFFFF; /* Branco */
-    --if-dark: #003366; /* Azul escuro */
-    --if-light: #F5F5F5; /* Cinza claro */
-    --if-success: #28a745; /* Verde sucesso */
-    --if-danger: #dc3545; /* Vermelho */
+    --if-primary: #00833E;
+    --if-secondary: #FFD700;
+    --if-accent: #FFFFFF;
+    --if-dark: #003366;
+    --if-light: #F5F5F5;
+    --if-success: #28a745;
+    --if-danger: #dc3545;
 }
 
 * {
@@ -27,7 +27,6 @@ header {
     padding: 1rem;
     text-align: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
 }
 
 .logo-container {
@@ -72,18 +71,9 @@ main {
     gap: 0.5rem;
 }
 
-.payment-btn:hover {
+.payment-btn:hover, .payment-btn.active {
     background-color: var(--if-primary);
     color: white;
-}
-
-.payment-btn.active {
-    background-color: var(--if-primary);
-    color: white;
-}
-
-.payment-btn i {
-    font-size: 1.2rem;
 }
 
 .categories {
@@ -111,12 +101,7 @@ main {
     transition: all 0.3s ease;
 }
 
-.category-btn:hover {
-    background-color: var(--if-primary);
-    color: white;
-}
-
-.category-btn.active {
+.category-btn:hover, .category-btn.active {
     background-color: var(--if-primary);
     color: white;
 }
@@ -308,39 +293,95 @@ main {
     background-color: #c82333;
 }
 
+/* Resumo dos Pedidos */
+.order-summary {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.order-summary h2 {
+    color: var(--if-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#order-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item-name {
+    font-weight: 600;
+}
+
+.order-item-quantity {
+    color: #666;
+}
+
+.order-item-price {
+    font-weight: 600;
+}
+
+.order-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: right;
+    padding-top: 1rem;
+    border-top: 2px solid var(--if-primary);
+}
+
+#payment-method-display {
+    font-size: 0.9rem;
+    color: #666;
+    margin-left: 0.5rem;
+}
+
 /* Responsividade */
 @media (max-width: 600px) {
     .items-grid {
         grid-template-columns: 1fr;
     }
     
-    .categories {
-        padding-bottom: 0.5rem;
+    .categories, .payment-methods {
+        flex-wrap: wrap;
     }
     
-    .category-btn {
+    .category-btn, .payment-btn {
         padding: 0.5rem;
         font-size: 0.8rem;
     }
-
-    .payment-methods {
-        flex-direction: column;
-    }
 }
 
-/* Classes de categoria para colorir os cards */
+/* Classes de categoria */
 .category-salgados .item-header {
-    background-color: #8B4513; /* Marrom */
+    background-color: #8B4513;
 }
 
 .category-doces .item-header {
-    background-color: #FF69B4; /* Rosa */
+    background-color: #FF69B4;
 }
 
 .category-bebidas .item-header {
-    background-color: #1E90FF; /* Azul */
+    background-color: #1E90FF;
 }
 
 .category-outros .item-header {
-    background-color: #9932CC; /* Roxo */
+    background-color: #9932CC;
 }

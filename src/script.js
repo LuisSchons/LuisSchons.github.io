@@ -24,15 +24,15 @@ items.forEach(item => {
 
 let currentCategory = 'all';
 let searchTerm = '';
-let paymentMethod = 'cash'; // 'cash' ou 'card'
+let paymentMethod = 'cash';
 
 document.addEventListener('DOMContentLoaded', () => {
     renderItems();
     setupEventListeners();
+    updateOrderSummary();
 });
 
 function setupEventListeners() {
-    // Filtros por categoria
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
@@ -42,7 +42,6 @@ function setupEventListeners() {
         });
     });
 
-    // Barra de pesquisa
     document.getElementById('search-input').addEventListener('input', (e) => {
         searchTerm = e.target.value.toLowerCase();
         renderItems();
@@ -53,6 +52,7 @@ function setPaymentMethod(method) {
     paymentMethod = method;
     renderItems();
     updatePaymentMethodDisplay();
+    updateOrderSummary();
 }
 
 function updatePaymentMethodDisplay() {
@@ -62,6 +62,9 @@ function updatePaymentMethodDisplay() {
             btn.classList.add('active');
         }
     });
+    
+    document.getElementById('payment-method-display').textContent = 
+        paymentMethod === 'cash' ? '(Dinheiro/PIX)' : '(Cartão +5%)';
 }
 
 function renderItems() {
@@ -121,6 +124,7 @@ function renderItems() {
     });
     
     updateSummary(total, itemsCount);
+    updateOrderSummary();
 }
 
 function changeQuantity(itemName, change) {
@@ -141,4 +145,40 @@ function resetAll() {
 function updateSummary(total, count) {
     document.getElementById('total-value').textContent = total.toFixed(2);
     document.getElementById('items-count').textContent = `${count} ${count === 1 ? 'item' : 'itens'}`;
+}
+
+function updateOrderSummary() {
+    const orderItemsContainer = document.getElementById('order-items');
+    orderItemsContainer.innerHTML = '';
+    
+    let orderTotal = 0;
+    let hasItems = false;
+    
+    items.forEach(item => {
+        const quantity = quantities[item.name] || 0;
+        if (quantity > 0) {
+            hasItems = true;
+            const price = paymentMethod === 'cash' ? item.cashPrice : item.cardPrice;
+            const itemTotal = quantity * price;
+            orderTotal += itemTotal;
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'order-item';
+            itemElement.innerHTML = `
+                <div>
+                    <span class="order-item-name">${item.name}</span>
+                    <span class="order-item-quantity">${quantity}x</span>
+                </div>
+                <div class="order-item-price">R$ ${itemTotal.toFixed(2)}</div>
+            `;
+            
+            orderItemsContainer.appendChild(itemElement);
+        }
+    });
+    
+    if (!hasItems) {
+        orderItemsContainer.innerHTML = '<div class="no-items">Nenhum item adicionado</div>';
+    }
+    
+    document.getElementById('order-total-value').textContent = orderTotal.toFixed(2);
 }
