@@ -1,26 +1,20 @@
 const items = [
     // Salgados
-    { name: "Pastel", price: 10.00, category: "salgados" },
-    { name: "Cachorro Quente", price: 5.00, category: "salgados" },
-    { name: "Pratinho de Galinhada", price: 10.00, category: "salgados" },
-    { name: "Copo de Caldo de Feijão", price: 10.00, category: "salgados" },
-    { name: "Caldo de Frango", price: 10.00, category: "salgados" },
-    { name: "Pipocas de sal", price: 4.00, category: "salgados" },
-    { name: "Milho cozidos", price: 5.00, category: "salgados" },
-    
-    // Doces
-    { name: "Maçã do Amor", price: 6.00, category: "doces" },
-    { name: "Copo de Canjica", price: 5.00, category: "doces" },
-    { name: "Mané Pelado", price: 5.00, category: "doces" },
-    { name: "Pipocas doces", price: 4.00, category: "doces" },
-    
-    // Bebidas
-    { name: "Refrigerante", price: 6.00, category: "bebidas" },
-    { name: "Água e suco", price: 4.00, category: "bebidas" },
-    { name: "Energético", price: 8.00, category: "bebidas" },
-    
-    // Outros
-    { name: "Cartela do Bingo", price: 5.00, category: "outros" }
+    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados" },
+    { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados" },
+    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces" },
+    { name: "Pratinho de Galinhada", cashPrice: 10.00, cardPrice: 10.50, category: "salgados" },
+    { name: "Copo de Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados" },
+    { name: "Caldo de Frango", cashPrice: 10.00, cardPrice: 10.50, category: "salgados" },
+    { name: "Copo de Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces" },
+    { name: "Mané Pelado", cashPrice: 5.00, cardPrice: 5.25, category: "doces" },
+    { name: "Pipocas doces", cashPrice: 4.00, cardPrice: 4.20, category: "doces" },
+    { name: "Pipocas de sal", cashPrice: 4.00, cardPrice: 4.20, category: "salgados" },
+    { name: "Milho cozidos", cashPrice: 5.00, cardPrice: 5.25, category: "salgados" },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas" },
+    { name: "Água e suco", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas" },
+    { name: "Energético", cashPrice: 8.00, cardPrice: 8.40, category: "bebidas" },
+    { name: "Cartela do Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros" }
 ];
 
 let quantities = {};
@@ -30,6 +24,7 @@ items.forEach(item => {
 
 let currentCategory = 'all';
 let searchTerm = '';
+let paymentMethod = 'cash'; // 'cash' ou 'card'
 
 document.addEventListener('DOMContentLoaded', () => {
     renderItems();
@@ -54,6 +49,21 @@ function setupEventListeners() {
     });
 }
 
+function setPaymentMethod(method) {
+    paymentMethod = method;
+    renderItems();
+    updatePaymentMethodDisplay();
+}
+
+function updatePaymentMethodDisplay() {
+    document.querySelectorAll('.payment-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.method === paymentMethod) {
+            btn.classList.add('active');
+        }
+    });
+}
+
 function renderItems() {
     const container = document.getElementById('items-container');
     container.innerHTML = '';
@@ -74,8 +84,9 @@ function renderItems() {
     }
     
     filteredItems.forEach(item => {
+        const price = paymentMethod === 'cash' ? item.cashPrice : item.cardPrice;
         const quantity = quantities[item.name] || 0;
-        const itemTotal = quantity * item.price;
+        const itemTotal = quantity * price;
         total += itemTotal;
         itemsCount += quantity;
         
@@ -84,9 +95,13 @@ function renderItems() {
         itemElement.innerHTML = `
             <div class="item-header">
                 <div class="item-name">${item.name}</div>
-                <div class="item-price">R$ ${item.price.toFixed(2)}</div>
+                <div class="item-price">R$ ${price.toFixed(2)}</div>
             </div>
             <div class="item-body">
+                <div class="price-display">
+                    <span class="cash-price">Dinheiro/PIX: R$ ${item.cashPrice.toFixed(2)}</span>
+                    <span class="card-price">Cartão: R$ ${item.cardPrice.toFixed(2)}</span>
+                </div>
                 <div class="item-controls">
                     <div class="quantity-control">
                         <button class="quantity-btn" onclick="changeQuantity('${item.name}', -1)">
