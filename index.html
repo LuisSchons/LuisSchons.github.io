@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <div id="access-gate" class="access-gate" role="dialog" aria-modal="true" aria-labelledby="password-title">
+        <form id="password-form" class="access-card">
+            <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="access-logo">
+            <h2 id="password-title">Acesso ao Caixa</h2>
+            <p>Informe a senha para acessar a tela principal da venda.</p>
+            <label for="site-password">Senha de acesso</label>
+            <input type="password" id="site-password" autocomplete="current-password" placeholder="Digite a senha">
+            <div id="password-error" class="password-error" aria-live="polite"></div>
+            <button type="submit" class="access-btn">
+                <i class="fas fa-lock-open"></i> Entrar
+            </button>
+        </form>
+    </div>
+
+    <div id="app-root">
     <header>
         <div class="logo-container">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
@@ -150,6 +165,8 @@
                 Desenvolvido por Prof. Luis Schons
             </div>
         </main>
+
+    </div>
 
     <script src="src/script.js"></script>
 </body>

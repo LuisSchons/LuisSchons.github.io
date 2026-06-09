@@ -1,11 +1,11 @@
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec"; // URL do Web App do Google Apps Script para registrar as vendas em TXT no Google Drive.
 
 const items = [
     // Salgados
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
     { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png" },
-    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png" },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha." },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha." },
     { name: "Milho", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png" },
     { name: "Pipoca Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png" },
 
@@ -37,17 +37,75 @@ let undoInProgress = false;
 let chartsInProgress = false;
 
 const STORAGE_KEYS = {
-    seller: "festaJuninaSellerName",
     sales: "festaJuninaSales"
 };
 
+const COOKIE_KEYS = {
+    seller: "festaJuninaSellerName",
+    access: "festaJuninaAccessOk"
+};
+
+const SITE_PASSWORD = "quadrilhaif2026";
+const SELLER_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
+const ACCESS_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
+
 document.addEventListener("DOMContentLoaded", () => {
+    setupAccessGate();
     renderItems();
     setupEventListeners();
     updatePaymentMethodDisplay();
     updateOrderSummary();
     restoreSellerName();
+    setAppAccess(hasValidAccessCookie());
 });
+
+
+function setupAccessGate() {
+    const form = document.getElementById("password-form");
+    const passwordInput = document.getElementById("site-password");
+    const errorBox = document.getElementById("password-error");
+
+    if (!form || !passwordInput) return;
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        if (passwordInput.value === SITE_PASSWORD) {
+            setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
+            passwordInput.value = "";
+            if (errorBox) errorBox.textContent = "";
+            setAppAccess(true);
+            document.getElementById("seller-name")?.focus();
+        } else {
+            if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
+            passwordInput.select();
+        }
+    });
+}
+
+function hasValidAccessCookie() {
+    return getCookie(COOKIE_KEYS.access) === "ok";
+}
+
+function setAppAccess(isAllowed) {
+    const gate = document.getElementById("access-gate");
+    const appRoot = document.getElementById("app-root");
+
+    document.body.classList.toggle("locked", !isAllowed);
+
+    if (gate) {
+        gate.classList.toggle("hidden", isAllowed);
+        gate.setAttribute("aria-hidden", String(isAllowed));
+    }
+
+    if (appRoot) {
+        appRoot.setAttribute("aria-hidden", String(!isAllowed));
+    }
+
+    if (!isAllowed) {
+        setTimeout(() => document.getElementById("site-password")?.focus(), 50);
+    }
+}
 
 function setupEventListeners() {
     document.querySelectorAll(".category-btn").forEach(btn => {
@@ -67,7 +125,7 @@ function setupEventListeners() {
     const sellerInput = document.getElementById("seller-name");
     if (sellerInput) {
         sellerInput.addEventListener("input", () => {
-            localStorage.setItem(STORAGE_KEYS.seller, sellerInput.value.trim());
+            saveSellerNameCookie(sellerInput.value.trim());
         });
     }
 
@@ -84,7 +142,7 @@ function restoreSellerName() {
     const sellerInput = document.getElementById("seller-name");
     if (!sellerInput) return;
 
-    sellerInput.value = localStorage.getItem(STORAGE_KEYS.seller) || "";
+    sellerInput.value = getCookie(COOKIE_KEYS.seller) || "";
 }
 
 function setPaymentMethod(method) {
@@ -176,6 +234,7 @@ function renderItems() {
                     <span class="cash-price">Dinheiro/PIX: R$ ${formatCurrency(item.cashPrice)}</span>
                     <span class="card-price">Cartão: R$ ${formatCurrency(item.cardPrice)}</span>
                 </div>
+                ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ""}
                 <div class="item-controls">
                     <div class="quantity-control">
                         <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, -1)">
@@ -238,7 +297,7 @@ function updateOrderSummary() {
     let orderTotal = 0;
     let hasItems = false;
 
-    items.forEach(item => {
+    items.forEach((item, itemIndex) => {
         const quantity = quantities[item.name] || 0;
         if (quantity > 0) {
             hasItems = true;
@@ -249,11 +308,19 @@ function updateOrderSummary() {
             const itemElement = document.createElement("div");
             itemElement.className = "order-item";
             itemElement.innerHTML = `
-                <div>
+                <div class="order-item-main">
                     <span class="order-item-name">${item.name}</span>
                     <span class="order-item-quantity">${quantity}x</span>
                 </div>
-                <div class="order-item-price">R$ ${formatCurrency(itemTotal)}</div>
+                <div class="order-item-actions">
+                    <button class="summary-quantity-btn" onclick="changeQuantity(${itemIndex}, -1)" aria-label="Remover uma unidade de ${escapeHtml(item.name)}">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="summary-quantity-btn" onclick="changeQuantity(${itemIndex}, 1)" aria-label="Adicionar uma unidade de ${escapeHtml(item.name)}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="order-item-price">R$ ${formatCurrency(itemTotal)}</div>
+                </div>
             `;
 
             orderItemsContainer.appendChild(itemElement);
@@ -363,6 +430,8 @@ async function launchSale() {
         return;
     }
 
+    saveSellerNameCookie(sellerName);
+
     if (selectedItems.length === 0) {
         alert("Adicione pelo menos um item antes de lançar a venda.");
         return;
@@ -407,6 +476,8 @@ async function undoLastSale() {
         document.getElementById("seller-name")?.focus();
         return;
     }
+
+    saveSellerNameCookie(sellerName);
 
     if (!confirm(`Deseja voltar a última venda lançada por ${sellerName}? A venda anterior será marcada como cancelada no registro central e voltará para edição na tela.`)) {
         return;
@@ -849,6 +920,28 @@ function setSaleButtonsDisabled(disabled) {
     document.querySelectorAll(".launch-btn, .undo-sale-btn").forEach(btn => {
         btn.disabled = disabled;
     });
+}
+
+function saveSellerNameCookie(sellerName) {
+    setCookie(COOKIE_KEYS.seller, sellerName, SELLER_COOKIE_MAX_AGE_SECONDS);
+}
+
+function setCookie(name, value, maxAgeSeconds) {
+    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; max-age=${maxAgeSeconds}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name) {
+    const encodedName = `${encodeURIComponent(name)}=`;
+    const cookies = document.cookie ? document.cookie.split(";") : [];
+
+    for (const cookie of cookies) {
+        const current = cookie.trim();
+        if (current.startsWith(encodedName)) {
+            return decodeURIComponent(current.substring(encodedName.length));
+        }
+    }
+
+    return "";
 }
 
 function isBackendConfigured() {

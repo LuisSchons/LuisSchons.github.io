@@ -790,3 +790,231 @@ main {
         grid-template-columns: 1fr;
     }
 }
+
+/* Tela de senha */
+body.locked {
+    overflow: hidden;
+}
+
+.access-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: linear-gradient(135deg, rgba(0, 131, 62, 0.96), rgba(0, 51, 102, 0.96));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.access-card {
+    width: 100%;
+    max-width: 420px;
+    background-color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.access-logo {
+    display: block;
+    width: 90px;
+    max-height: 90px;
+    object-fit: contain;
+    margin: 0 auto 1rem;
+}
+
+.access-card h2 {
+    color: var(--if-primary);
+    text-align: center;
+    margin-bottom: 0.35rem;
+}
+
+.access-card p {
+    color: #555;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.access-card label {
+    display: block;
+    font-weight: 700;
+    color: var(--if-dark);
+    margin-bottom: 0.5rem;
+}
+
+.access-card input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.access-card input:focus {
+    outline: none;
+    border-color: var(--if-primary);
+}
+
+.password-error {
+    min-height: 1.2rem;
+    margin-top: 0.5rem;
+    color: var(--if-danger);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.access-btn {
+    width: 100%;
+    border: none;
+    border-radius: 50px;
+    padding: 0.85rem 1rem;
+    background-color: var(--if-primary);
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.item-description {
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--if-primary);
+    border-radius: 8px;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.order-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.order-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    margin-left: 0.75rem;
+}
+
+.summary-quantity-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--if-primary);
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.summary-quantity-btn:hover {
+    background-color: var(--if-dark);
+}
+
+.undo-sale-btn {
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.3s;
+    background-color: #6c757d;
+    color: white;
+    flex: 1 1 160px;
+}
+
+.undo-sale-btn:hover {
+    opacity: 0.85;
+}
+
+.launch-btn:disabled,
+.undo-sale-btn:disabled,
+.summary-quantity-btn:disabled,
+.access-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    main {
+        padding: 1rem;
+    }
+
+    .summary,
+    .order-summary,
+    .charts-panel {
+        padding: 1rem;
+    }
+
+    .sale-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+
+    .launch-btn,
+    .undo-sale-btn {
+        width: 100%;
+        flex: initial;
+        min-height: 46px;
+        padding: 0.65rem 0.75rem;
+        border-radius: 14px;
+        font-size: 0.9rem;
+        line-height: 1.15;
+    }
+
+    .order-item {
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-item-actions {
+        gap: 0.35rem;
+        margin-left: 0.35rem;
+    }
+
+    .summary-quantity-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .order-item-price {
+        min-width: 72px;
+        text-align: right;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .sale-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .order-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .order-item-actions {
+        justify-content: space-between;
+        margin-left: 0;
+    }
+}
