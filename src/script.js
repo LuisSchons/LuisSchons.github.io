@@ -1,20 +1,24 @@
 const items = [
     // Salgados
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
-    { name: "Galinhada", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "galinhada.png" },
-    { name: "Caldo de Frango", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    { name: "Caldo de Feijão", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-feijao.png" },
-    { name: "Cachorro Quente", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "cachorro-quente.png" },
-    { name: "Milho Cozido", cashPrice: 5.00, cardPrice: 5.25, category: "salgados", image: "milho.png" },
-    { name: "Pipoca de sal", cashPrice: 4.00, cardPrice: 4.20, category: "salgados", image: "pipoca-sal.png" },
-    { name: "Pipoca doce", cashPrice: 4.00, cardPrice: 4.20, category: "doces", image: "pipoca-doce.png" },
+    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente-tradicional.png" },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png" },
+    { name: "Milho", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png" },
+    { name: "Pipoca Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png" },
+
+    // Doces
+    { name: "Pipoca Doce", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "pipoca-doce.png" },
+    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png" },
+    { name: "Arroz Doce", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "arroz-doce.png" },
     { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
     { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
-    { name: "Mané Pelado", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "mane-pelado.png" },
+
+    // Bebidas
+    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-mineral.png" },
+    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-com-gas.png" },
     { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png" },
-    { name: "Água e suco", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-suco.png" },
-    { name: "Energético", cashPrice: 8.00, cardPrice: 8.40, category: "bebidas", image: "energetico.png" },
-    { name: "Cartela do Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png" }
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-caixinha.png" }
 ];
 
 let quantities = {};
