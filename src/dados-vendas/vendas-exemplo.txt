@@ -1,0 +1,2 @@
+{"tipo":"VENDA","saleId":"exemplo-001","datetimeLocal":"09/06/2026, 19:30:00","sellerName":"Prof. Exemplo","paymentLabel":"Dinheiro","total":20,"amountPaid":50,"change":30,"items":[{"name":"Pastel","quantity":2,"unitPrice":10,"total":20}]}
+{"tipo":"CANCELAMENTO","cancelledSaleId":"exemplo-001","datetimeLocal":"09/06/2026 19:31:00","sellerName":"Prof. Exemplo","motivo":"Voltar última venda para edição"}

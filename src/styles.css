@@ -429,3 +429,364 @@ main {
     font-size: 0.9rem;
     font-style: italic;
 }
+.seller-session {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.seller-session label {
+    display: block;
+    font-weight: 700;
+    color: var(--if-dark);
+    margin-bottom: 0.5rem;
+}
+
+.seller-session input,
+.cash-payment-box input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.seller-session input:focus,
+.cash-payment-box input:focus {
+    outline: none;
+    border-color: var(--if-primary);
+}
+
+.cash-payment-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #f8fff9;
+    border: 1px solid rgba(0, 131, 62, 0.25);
+}
+
+.cash-payment-box.hidden {
+    display: none;
+}
+
+.cash-payment-box label {
+    display: block;
+    font-weight: 700;
+    color: var(--if-dark);
+    margin-bottom: 0.5rem;
+}
+
+.change-result {
+    margin-top: 0.75rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--if-primary);
+}
+
+.change-warning {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.change-warning.neutral {
+    color: #666;
+}
+
+.change-warning.success {
+    color: var(--if-success);
+}
+
+.change-warning.danger {
+    color: var(--if-danger);
+}
+
+.sale-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.launch-btn,
+.export-btn,
+.clear-sales-btn {
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.3s;
+}
+
+.launch-btn:hover,
+.export-btn:hover,
+.clear-sales-btn:hover {
+    opacity: 0.85;
+}
+
+.launch-btn {
+    background-color: var(--if-success);
+    color: white;
+    flex: 1 1 180px;
+}
+
+.export-btn {
+    background-color: var(--if-dark);
+    color: white;
+    flex: 1 1 180px;
+}
+
+.clear-sales-btn {
+    background-color: #6c757d;
+    color: white;
+    flex: 1 1 180px;
+}
+
+@media (max-width: 600px) {
+    .payment-methods {
+        flex-direction: column;
+    }
+
+    .payment-btn {
+        justify-content: center;
+    }
+
+    .sale-actions {
+        flex-direction: column;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+.dashboard-section {
+    margin-top: 2rem;
+}
+
+.charts-toggle-btn {
+    width: 100%;
+    border: none;
+    border-radius: 50px;
+    padding: 0.9rem 1rem;
+    background-color: var(--if-dark);
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.3s;
+}
+
+.charts-toggle-btn:hover,
+.refresh-charts-btn:hover {
+    opacity: 0.85;
+}
+
+.charts-toggle-btn:disabled,
+.refresh-charts-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.charts-panel {
+    margin-top: 1rem;
+    background-color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.charts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.charts-header h2 {
+    color: var(--if-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.charts-header p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.refresh-charts-btn {
+    border: none;
+    border-radius: 50px;
+    padding: 0.65rem 1rem;
+    background-color: var(--if-primary);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.charts-status {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.charts-status.neutral {
+    background-color: #f1f3f5;
+    color: #555;
+}
+
+.charts-status.success {
+    background-color: #eaf7ee;
+    color: var(--if-success);
+}
+
+.charts-status.danger {
+    background-color: #fdecec;
+    color: var(--if-danger);
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.kpi-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 1rem;
+    background-color: #fbfbfb;
+}
+
+.kpi-card span {
+    display: block;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.35rem;
+}
+
+.kpi-card strong {
+    display: block;
+    color: var(--if-dark);
+    font-size: 1.35rem;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.chart-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.chart-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-card h3 {
+    color: var(--if-dark);
+    margin-bottom: 0.85rem;
+    font-size: 1rem;
+}
+
+.bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.chart-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.chart-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chart-label {
+    font-weight: 700;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chart-value {
+    font-weight: 800;
+    color: var(--if-primary);
+    white-space: nowrap;
+}
+
+.chart-track {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.chart-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--if-primary), var(--if-dark));
+}
+
+.chart-extra {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.chart-empty {
+    color: #666;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .charts-header {
+        flex-direction: column;
+    }
+
+    .refresh-charts-btn {
+        width: 100%;
+    }
+
+    .kpi-grid,
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}

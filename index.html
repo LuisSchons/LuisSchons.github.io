@@ -29,17 +29,25 @@
             <input type="text" id="search-input" placeholder="Pesquisar item...">
         </div>
 
+        <div class="seller-session">
+            <label for="seller-name"><i class="fas fa-user"></i> Professor responsável pelo caixa</label>
+            <input type="text" id="seller-name" placeholder="Ex.: Prof. Luís">
+        </div>
+
         <div id="items-container" class="items-grid"></div>
 
         <div class="summary">
             <div class="summary-header">
                 <div class="total-container">
                     <h2>Total Geral</h2>
-                    <div class="total-value">R$ <span id="total-value">0.00</span></div>
+                    <div class="total-value">R$ <span id="total-value">0,00</span></div>
                 </div>
                 <div class="payment-methods">
                     <button class="payment-btn active" data-method="cash" onclick="setPaymentMethod('cash')">
-                        <i class="fas fa-money-bill-wave"></i> Dinheiro/PIX
+                        <i class="fas fa-money-bill-wave"></i> Dinheiro
+                    </button>
+                    <button class="payment-btn" data-method="pix" onclick="setPaymentMethod('pix')">
+                        <i class="fas fa-qrcode"></i> PIX
                     </button>
                     <button class="payment-btn" data-method="card" onclick="setPaymentMethod('card')">
                         <i class="fas fa-credit-card"></i> Cartão (+5%)
@@ -58,10 +66,85 @@
             <h2><i class="fas fa-clipboard-list"></i> Resumo dos Pedidos</h2>
             <div id="order-items"></div>
             <div class="order-total">
-                Total: R$ <span id="order-total-value">0.00</span>
-                <span id="payment-method-display">(Dinheiro/PIX)</span>
+                Total: R$ <span id="order-total-value">0,00</span>
+                <span id="payment-method-display">(Dinheiro)</span>
+            </div>
+
+            <div id="cash-payment-box" class="cash-payment-box">
+                <label for="amount-paid">Valor recebido em dinheiro</label>
+                <input type="text" id="amount-paid" inputmode="decimal" placeholder="Ex.: 50,00">
+                <div class="change-result">
+                    Troco: R$ <span id="change-value">0,00</span>
+                </div>
+                <div id="change-warning" class="change-warning neutral">Informe o valor recebido em dinheiro.</div>
+            </div>
+
+            <div class="sale-actions">
+                <button class="launch-btn" onclick="launchSale()">
+                    <i class="fas fa-check-circle"></i> Lançar Venda
+                </button>
+                <button class="undo-sale-btn" onclick="undoLastSale()">
+                    <i class="fas fa-rotate-left"></i> Voltar Última Venda
+                </button>
             </div>
         </div>
+
+        <section class="dashboard-section">
+            <button class="charts-toggle-btn" onclick="toggleChartsPanel()">
+                <i class="fas fa-chart-column"></i> Ver Gráficos
+            </button>
+
+            <div id="charts-panel" class="charts-panel hidden">
+                <div class="charts-header">
+                    <div>
+                        <h2><i class="fas fa-chart-pie"></i> Resumo das Vendas</h2>
+                        <p id="charts-source">Os dados serão carregados ao abrir o painel.</p>
+                    </div>
+                    <button class="refresh-charts-btn" onclick="loadSalesDashboard()">
+                        <i class="fas fa-rotate"></i> Atualizar
+                    </button>
+                </div>
+
+                <div id="charts-status" class="charts-status neutral">Clique em atualizar para consultar os lançamentos.</div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span>Total arrecadado</span>
+                        <strong>R$ <span id="kpi-total-revenue">0,00</span></strong>
+                    </div>
+                    <div class="kpi-card">
+                        <span>Vendas lançadas</span>
+                        <strong><span id="kpi-total-sales">0</span></strong>
+                    </div>
+                    <div class="kpi-card">
+                        <span>Itens vendidos</span>
+                        <strong><span id="kpi-total-items">0</span></strong>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Arrecadação por pagamento</h3>
+                        <div id="payment-revenue-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Quantidade de vendas por pagamento</h3>
+                        <div id="payment-count-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card full-width">
+                        <h3>Quantidade vendida por item</h3>
+                        <div id="item-quantity-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card full-width">
+                        <h3>Vendas por professor</h3>
+                        <div id="seller-sales-chart" class="bar-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <div class="watermark">
                 Desenvolvido por Prof. Luis Schons
