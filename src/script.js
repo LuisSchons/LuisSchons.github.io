@@ -4,8 +4,8 @@ const items = [
     // Salgados
     { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png", ownerGroup: "3º de Mineração", fichaLimit: 200 },
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png", ownerGroup: "3º de Informática", fichaLimit: 200 },
-    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha.", ownerGroup: "2º de Mineração", fichaLimit: 140 },
-    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha.", ownerGroup: "2º de Mineração", fichaLimit: 130 },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha", ownerGroup: "2º de Mineração", fichaLimit: 140 },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Tradicional com purê de batata e bacon", ownerGroup: "2º de Mineração", fichaLimit: 130 },
     { name: "Pipoca Doce/Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-doce.png", ownerGroup: "2º de Informática", fichaLimit: 150 },
     { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", ownerGroup: "2º de Informática", fichaLimit: 50 },
     { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", ownerGroup: "2º de Informática", fichaLimit: 70 },
@@ -18,8 +18,8 @@ const items = [
     // Bebidas
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
     { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", description: "Morango, uva e maracujá", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
 
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
