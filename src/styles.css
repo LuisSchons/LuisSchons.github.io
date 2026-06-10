@@ -1315,7 +1315,7 @@ body.locked {
 }
 
 
-/* Tela dos alunos somente consulta */
+/* Ajuste visual herdado para contadores dos alunos */
 .student-counters-readonly {
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 }
@@ -1332,4 +1332,83 @@ body.locked {
 
 .admin-only-action {
     margin-top: 0.9rem;
+}
+
+/* Ajustes finais: fichas restantes no caixa e painel dos alunos com retirada */
+.item-fichas {
+    margin-top: 0.35rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    background-color: #eef8f1;
+    color: var(--if-primary);
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.item-fichas-warning {
+    background-color: #fff3cd;
+    color: #7a4f00;
+}
+
+.student-chart-block {
+    margin: 0.75rem 0 0.9rem;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.student-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    color: #555;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.student-progress-label strong {
+    color: var(--if-dark);
+    white-space: nowrap;
+}
+
+.student-progress-track {
+    height: 12px;
+    border-radius: 999px;
+    background-color: #ececec;
+    overflow: hidden;
+}
+
+.student-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.25s ease;
+}
+
+.sold-fill {
+    background-color: var(--if-primary);
+}
+
+.fulfilled-fill {
+    background-color: var(--if-dark);
+}
+
+.admin-only-action {
+    margin-top: 0.65rem;
+}
+
+@media (max-width: 600px) {
+    .student-counters {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .student-action-row {
+        grid-template-columns: 72px 1fr;
+    }
+
+    .mark-done-btn,
+    .admin-remove-item-btn {
+        font-size: 0.88rem;
+        padding: 0.7rem 0.55rem;
+    }
 }

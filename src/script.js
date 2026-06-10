@@ -65,6 +65,8 @@ let undoInProgress = false;
 let chartsInProgress = false;
 let studentActionInProgress = false;
 let currentSession = null;
+let itemStatusByName = {};
+let ticketStatusInProgress = false;
 
 const STORAGE_KEYS = {
     sales: "festaJuninaSales",
@@ -189,6 +191,7 @@ function setAppAccess(session) {
 
     showOnlyScreen("cash");
     document.getElementById("seller-name")?.focus();
+    loadTicketStatusForCash();
 }
 
 function logoutAccess() {
@@ -380,6 +383,43 @@ function getCurrentPrice(item) {
     return paymentMethod === "card" ? item.cardPrice : item.cashPrice;
 }
 
+
+async function loadTicketStatusForCash() {
+    const session = currentSession || getSavedAccessSession();
+    if (!session || !["caixa", "admin"].includes(session.role) || ticketStatusInProgress) return;
+
+    ticketStatusInProgress = true;
+    try {
+        const response = await jsonpRequest(authParams({ action: "studentStatus", scope: "all" }));
+        if (!response.ok) throw new Error(response.message || "Não foi possível carregar fichas restantes.");
+
+        itemStatusByName = {};
+        (response.items || []).forEach(item => {
+            itemStatusByName[normalizeText(item.name)] = item;
+        });
+        renderItems();
+    } catch (error) {
+        console.warn("Não foi possível atualizar fichas restantes:", error);
+    } finally {
+        ticketStatusInProgress = false;
+    }
+}
+
+function renderItemFichaInfo(item) {
+    if (item.fichaLimit === null || item.fichaLimit === undefined) return "";
+
+    const fichaLimit = Number(item.fichaLimit) || 0;
+    const status = itemStatusByName[normalizeText(item.name)] || {};
+    const sold = Number(status.sold) || 0;
+    const remaining = fichaLimit - sold;
+
+    if (remaining >= 0) {
+        return `<div class="item-fichas">Fichas vendidas: ${sold} | Restam: ${remaining} de ${fichaLimit}</div>`;
+    }
+
+    return `<div class="item-fichas item-fichas-warning">Fichas vendidas: ${sold} | Excedeu ${Math.abs(remaining)} ficha(s) da previsão de ${fichaLimit}</div>`;
+}
+
 function renderItems() {
     const container = document.getElementById("items-container");
     if (!container) return;
@@ -426,7 +466,7 @@ function renderItems() {
                     <span class="card-price">Cartão: R$ ${formatCurrency(item.cardPrice)}</span>
                 </div>
                 ${item.ownerGroup ? `<div class="item-owner">Responsável: ${escapeHtml(item.ownerGroup)}</div>` : ""}
-                ${item.fichaLimit ? `<div class="item-fichas">Fichas: ${item.fichaLimit}</div>` : ""}
+                ${renderItemFichaInfo(item)}
                 ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ""}
                 <div class="item-controls">
                     <div class="quantity-control">
@@ -657,10 +697,11 @@ async function launchSale() {
         if (!response.ok) {
             throw new Error(response.message || "A venda não foi registrada no backend.");
         }
-
         saveSaleLocally(sale);
-        alert(`Venda lançada no registro central.\nCódigo do dispositivo: ${getDeviceId()}`);
+        alert(`Venda lançada no registro central.
+Código do dispositivo: ${getDeviceId()}`);
         clearCurrentSale();
+        loadTicketStatusForCash();
     } catch (error) {
         console.error(error);
         alert(error.message || "Erro ao lançar a venda. Verifique internet, chave de acesso e Apps Script.");
@@ -703,6 +744,7 @@ async function undoLastSale() {
         const sale = response.sale;
         removeLocalSaleById(sale.saleId);
         restoreSaleForEditing(sale);
+        loadTicketStatusForCash();
         alert("Última venda recuperada para edição. Corrija o pedido e clique em Lançar Venda novamente.");
     } catch (error) {
         console.error(error);
@@ -864,7 +906,7 @@ async function loadStudentPanel() {
     if (studentActionInProgress) return;
 
     studentActionInProgress = true;
-    setStudentStatus("Carregando fichas vendidas...", "neutral");
+    setStudentStatus("Carregando fichas vendidas, arrecadação e retiradas...", "neutral");
     setStudentButtonsDisabled(true);
 
     try {
@@ -874,10 +916,10 @@ async function loadStudentPanel() {
         }
 
         renderStudentPanel(response);
-        setStudentStatus("Fichas vendidas atualizadas.", "success");
+        setStudentStatus("Painel dos alunos atualizado.", "success");
     } catch (error) {
         console.error(error);
-        setStudentStatus(error.message || "Erro ao carregar as fichas vendidas.", "danger");
+        setStudentStatus(error.message || "Erro ao carregar o painel dos alunos.", "danger");
     } finally {
         studentActionInProgress = false;
         setStudentButtonsDisabled(false);
@@ -892,10 +934,12 @@ function renderStudentPanel(response) {
     const session = requireSession();
     const panelItems = Array.isArray(response.items) ? response.items : [];
     const title = session.role === "admin"
-        ? "Admin: visualização de todos os itens vendidos."
+        ? "Admin: visualização de todos os itens, arrecadação e retiradas."
         : `Itens liberados para ${response.studentGroupLabel || session.studentGroupLabel || "este grupo"}.`;
 
-    if (scopeText) scopeText.textContent = title;
+    if (scopeText) {
+        scopeText.textContent = `${title} Acompanhe fichas vendidas, valor arrecadado e fichas já retiradas.`;
+    }
 
     if (panelItems.length === 0) {
         container.innerHTML = '<div class="no-items">Nenhum item configurado para este grupo.</div>';
@@ -906,14 +950,19 @@ function renderStudentPanel(response) {
         const sold = Number(item.sold) || 0;
         const grossSold = Number(item.grossSold ?? sold) || 0;
         const adminRemoved = Number(item.adminRemoved) || 0;
+        const fulfilled = Number(item.fulfilled) || 0;
+        const pending = Math.max(Number(item.pending ?? (sold - fulfilled)) || 0, 0);
+        const revenue = Number(item.revenue) || 0;
         const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
-        const remainingFichas = fichaLimit === null ? null : Math.max(fichaLimit - sold, 0);
+        const remainingToSell = fichaLimit === null ? null : fichaLimit - sold;
+        const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
+        const fulfilledPercent = sold > 0 ? Math.min((fulfilled / sold) * 100, 100) : 0;
 
         const adminControls = session.role === "admin" ? `
             <div class="student-action-row admin-only-action">
                 <input id="admin-remove-qty-${index}" type="number" min="1" max="${Math.max(sold, 1)}" value="${sold > 0 ? 1 : 0}" inputmode="numeric" ${sold <= 0 ? "disabled" : ""}>
                 <button type="button" class="admin-remove-item-btn" onclick="adminRemoveItem('${escapeJs(item.name)}', ${index})" ${sold <= 0 ? "disabled" : ""}>
-                    <i class="fas fa-triangle-exclamation"></i> Remover quantidade
+                    <i class="fas fa-triangle-exclamation"></i> Remover venda
                 </button>
             </div>
         ` : "";
@@ -923,25 +972,85 @@ function renderStudentPanel(response) {
             <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
         ` : "";
 
+        const remainingLabel = remainingToSell === null
+            ? "—"
+            : (remainingToSell >= 0 ? remainingToSell : `+${Math.abs(remainingToSell)}`);
+
         return `
             <article class="student-item-card">
                 <div class="student-item-title">
                     <h3>${escapeHtml(item.name)}</h3>
                     <span>${escapeHtml(item.ownerGroup || item.category || "")}</span>
                 </div>
-                <div class="student-counters student-counters-readonly">
-                    <div class="sold-counter"><span>Fichas vendidas</span><strong>${sold}</strong></div>
+
+                <div class="student-chart-block">
+                    <div class="student-progress-label">
+                        <span>Fichas vendidas</span>
+                        <strong>${sold}${fichaLimit === null ? "" : ` / ${fichaLimit}`}</strong>
+                    </div>
+                    <div class="student-progress-track" aria-label="Progresso de fichas vendidas">
+                        <div class="student-progress-fill sold-fill" style="width: ${soldPercent}%"></div>
+                    </div>
+
+                    <div class="student-progress-label">
+                        <span>Fichas retiradas</span>
+                        <strong>${fulfilled} / ${sold}</strong>
+                    </div>
+                    <div class="student-progress-track" aria-label="Progresso de fichas retiradas">
+                        <div class="student-progress-fill fulfilled-fill" style="width: ${fulfilledPercent}%"></div>
+                    </div>
+                </div>
+
+                <div class="student-counters">
+                    <div class="sold-counter"><span>Vendidas</span><strong>${sold}</strong></div>
+                    <div><span>Arrecadado</span><strong>R$ ${formatCurrency(revenue)}</strong></div>
+                    <div><span>Retiradas</span><strong>${fulfilled}</strong></div>
+                    <div class="pending-counter"><span>A retirar</span><strong>${pending}</strong></div>
                     <div><span>Fichas totais</span><strong>${fichaLimit === null ? "—" : fichaLimit}</strong></div>
-                    <div><span>Ainda não vendidas</span><strong>${remainingFichas === null ? "—" : remainingFichas}</strong></div>
+                    <div><span>Ainda não vendidas</span><strong>${remainingLabel}</strong></div>
                     ${adminInfo}
+                </div>
+
+                <div class="student-action-row">
+                    <input id="fulfill-qty-${index}" type="number" min="1" max="${Math.max(pending, 1)}" value="${pending > 0 ? 1 : 0}" inputmode="numeric" ${pending <= 0 ? "disabled" : ""}>
+                    <button type="button" class="mark-done-btn" onclick="markItemFulfilled('${escapeJs(item.name)}', ${index})" ${pending <= 0 ? "disabled" : ""}>
+                        <i class="fas fa-check"></i> Registrar retirada
+                    </button>
                 </div>
                 ${adminControls}
             </article>
         `;
     }).join("");
 }
-async function markItemFulfilled() {
-    alert("A tela dos alunos agora é somente de consulta. Os alunos não registram retirada/produção no sistema.");
+async function markItemFulfilled(itemName, index) {
+    const input = document.getElementById(`fulfill-qty-${index}`);
+    const quantity = Math.max(Number(input?.value) || 0, 0);
+
+    if (quantity <= 0) {
+        alert("Informe a quantidade retirada no campo ao lado.");
+        return;
+    }
+
+    studentActionInProgress = true;
+    setStudentButtonsDisabled(true);
+    setStudentStatus("Registrando ficha retirada...", "neutral");
+
+    try {
+        const response = await jsonpRequest(authParams({
+            action: "fulfillItem",
+            itemName,
+            quantity: String(quantity)
+        }));
+
+        if (!response.ok) throw new Error(response.message || "Não foi possível registrar a retirada.");
+        await loadStudentPanel();
+    } catch (error) {
+        console.error(error);
+        setStudentStatus(error.message || "Erro ao registrar ficha retirada.", "danger");
+    } finally {
+        studentActionInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
 }
 async function adminRemoveItem(itemName, index) {
     const session = requireSession();
