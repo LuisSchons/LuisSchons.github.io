@@ -16,24 +16,22 @@ const items = [
     { name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", fichaLimit: 80, ownerGroup: "1º de Desenvolvimento de Sistemas" },
 
     // Bebidas
-    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", fichaLimit: 48, ownerGroup: "Bebidas (3º Anos)" },
-    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", fichaLimit: 12, ownerGroup: "Bebidas (3º Anos)" },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", fichaLimit: 200, ownerGroup: "Bebidas (3º Anos)" },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", fichaLimit: 15, ownerGroup: "Bebidas (3º Anos)" }
+    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", fichaLimit: 48, ownerGroup: "3º anos - compartilhado" },
+    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", fichaLimit: 12, ownerGroup: "3º anos - compartilhado" },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", fichaLimit: 200, ownerGroup: "3º anos - compartilhado" },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", fichaLimit: 15, ownerGroup: "3º anos - compartilhado" }
 ];
 
+const THIRD_YEAR_SHARED_ITEMS = ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"];
+
 const FALLBACK_STUDENT_GROUPS = {
-    bebidas3: {
-        label: "Bebidas (3º Anos)",
-        allowedItems: ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"]
-    },
     terceiroMineracao: {
         label: "3º de Mineração",
-        allowedItems: ["Caldo (Frango/Feijão)"]
+        allowedItems: ["Caldo (Frango/Feijão)", ...THIRD_YEAR_SHARED_ITEMS]
     },
     terceiroInformatica: {
         label: "3º de Informática",
-        allowedItems: ["Pastel"]
+        allowedItems: ["Pastel", ...THIRD_YEAR_SHARED_ITEMS]
     },
     segundoMineracao: {
         label: "2º de Mineração",
