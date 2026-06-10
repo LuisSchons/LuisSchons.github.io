@@ -161,12 +161,9 @@ function renderStudentClassTotal(statusItems) {
                     ? `<small>
                         Cálculo do total da turma: item próprio da turma + 50% das bebidas compartilhadas
                         (Água Mineral, Água com Gás, Refrigerante e Suco de Caixinha).
-                        Nos cards abaixo, cada bebida aparece com o valor total vendido do item, sem dividir.
-                        A taxa de cartão não entra na arrecadação.
                        </small>`
                     : `<small>
                         Cálculo do total da turma: soma dos itens da própria turma.
-                        A taxa de cartão não entra na arrecadação.
                        </small>`
             }
         </div>
