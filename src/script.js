@@ -1,4 +1,4 @@
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec"; // URL do Web App do Google Apps Script para registrar as vendas em TXT no Google Drive.
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec";
 
 const items = [
     // Salgados
@@ -24,8 +24,22 @@ const items = [
 
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png" }
-
 ];
+
+const FALLBACK_STUDENT_GROUPS = {
+    aluno1: {
+        label: "1º ano",
+        allowedItems: ["Pastel", "Caldo (Frango/Feijão)", "Cachorro Quente Tradicional", "Cachorro Quente Completo", "Milho", "Pipoca Salgada"]
+    },
+    aluno2: {
+        label: "2º ano",
+        allowedItems: ["Pipoca Doce", "Pipoca de Leite Ninho", "Arroz Doce", "Maçã do Amor", "Canjica"]
+    },
+    aluno3: {
+        label: "3º ano",
+        allowedItems: ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha", "Cartela de Bingo"]
+    }
+};
 
 let quantities = {};
 items.forEach(item => {
@@ -39,76 +53,220 @@ let amountPaid = 0;
 let saleInProgress = false;
 let undoInProgress = false;
 let chartsInProgress = false;
+let studentActionInProgress = false;
+let currentSession = null;
 
 const STORAGE_KEYS = {
-    sales: "festaJuninaSales"
+    sales: "festaJuninaSales",
+    accessSession: "festaJuninaAccessSessionV2",
+    deviceId: "festaJuninaDeviceId"
 };
 
 const COOKIE_KEYS = {
-    seller: "festaJuninaSellerName",
-    access: "festaJuninaAccessOk"
+    seller: "festaJuninaSellerName"
 };
 
-const SITE_PASSWORD = "quadrilhaif2026";
 const SELLER_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
-const ACCESS_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
+const ACCESS_DURATION_DAYS = 7;
 
 document.addEventListener("DOMContentLoaded", () => {
+    initializeDeviceCode();
     setupAccessGate();
-    renderItems();
     setupEventListeners();
+    renderItems();
     updatePaymentMethodDisplay();
     updateOrderSummary();
     restoreSellerName();
-    setAppAccess(hasValidAccessCookie());
-});
 
+    const savedSession = getSavedAccessSession();
+    if (savedSession) {
+        setAppAccess(savedSession);
+    } else {
+        setAppLocked();
+    }
+});
 
 function setupAccessGate() {
     const form = document.getElementById("password-form");
     const passwordInput = document.getElementById("site-password");
     const errorBox = document.getElementById("password-error");
+    const deviceBox = document.getElementById("device-code-box");
+
+    if (deviceBox) {
+        deviceBox.textContent = `Código do dispositivo: ${getDeviceId()}`;
+    }
 
     if (!form || !passwordInput) return;
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
         event.preventDefault();
+        const accessKey = passwordInput.value.trim();
 
-        if (passwordInput.value === SITE_PASSWORD) {
-            setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
+        if (!accessKey) {
+            if (errorBox) errorBox.textContent = "Informe a chave de acesso.";
+            return;
+        }
+
+        const submitButton = form.querySelector("button[type='submit']");
+        if (submitButton) submitButton.disabled = true;
+        if (errorBox) errorBox.textContent = "Validando chave...";
+
+        try {
+            const response = await jsonpRequest({
+                action: "login",
+                accessKey,
+                deviceId: getDeviceId(),
+                deviceInfo: JSON.stringify(getDeviceInfo())
+            });
+
+            if (!response.ok) {
+                throw new Error(response.message || "Chave inválida.");
+            }
+
+            const session = {
+                token: response.sessionToken,
+                role: response.role,
+                roleLabel: response.roleLabel,
+                studentGroup: response.studentGroup || "",
+                studentGroupLabel: response.studentGroupLabel || "",
+                allowedItems: Array.isArray(response.allowedItems) ? response.allowedItems : [],
+                deviceId: getDeviceId(),
+                expiresAt: response.expiresAt || new Date(Date.now() + ACCESS_DURATION_DAYS * 24 * 60 * 60 * 1000).toISOString()
+            };
+
+            saveAccessSession(session);
             passwordInput.value = "";
             if (errorBox) errorBox.textContent = "";
-            setAppAccess(true);
-            document.getElementById("seller-name")?.focus();
-        } else {
-            if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
+            setAppAccess(session);
+        } catch (error) {
+            console.error(error);
+            if (errorBox) errorBox.textContent = error.message || "Não foi possível validar a chave.";
             passwordInput.select();
+        } finally {
+            if (submitButton) submitButton.disabled = false;
         }
     });
 }
 
-function hasValidAccessCookie() {
-    return getCookie(COOKIE_KEYS.access) === "ok";
+function setAppLocked() {
+    currentSession = null;
+    document.body.classList.add("locked");
+    document.getElementById("access-gate")?.classList.remove("hidden");
+    document.getElementById("app-root")?.classList.add("app-hidden");
+    setTimeout(() => document.getElementById("site-password")?.focus(), 50);
 }
 
-function setAppAccess(isAllowed) {
-    const gate = document.getElementById("access-gate");
-    const appRoot = document.getElementById("app-root");
+function setAppAccess(session) {
+    currentSession = session;
+    document.body.classList.remove("locked");
+    document.getElementById("access-gate")?.classList.add("hidden");
+    document.getElementById("app-root")?.classList.remove("app-hidden");
 
-    document.body.classList.toggle("locked", !isAllowed);
+    const roleLabel = document.getElementById("session-role-label");
+    if (roleLabel) roleLabel.textContent = getDisplayRoleLabel(session);
 
-    if (gate) {
-        gate.classList.toggle("hidden", isAllowed);
-        gate.setAttribute("aria-hidden", String(isAllowed));
+    const deviceLabel = document.getElementById("session-device-code");
+    if (deviceLabel) deviceLabel.textContent = `Dispositivo: ${session.deviceId || getDeviceId()}`;
+
+    const adminNav = document.getElementById("admin-nav");
+    if (adminNav) adminNav.classList.toggle("hidden", session.role !== "admin");
+
+    if (session.role === "aluno") {
+        showOnlyScreen("student");
+        loadStudentPanel();
+        return;
     }
 
-    if (appRoot) {
-        appRoot.setAttribute("aria-hidden", String(!isAllowed));
-    }
+    showOnlyScreen("cash");
+    document.getElementById("seller-name")?.focus();
+}
 
-    if (!isAllowed) {
-        setTimeout(() => document.getElementById("site-password")?.focus(), 50);
+function logoutAccess() {
+    if (!confirm("Deseja sair deste dispositivo? Será necessário informar a chave novamente.")) return;
+    localStorage.removeItem(STORAGE_KEYS.accessSession);
+    setAppLocked();
+}
+
+function getDisplayRoleLabel(session) {
+    if (!session) return "Perfil";
+    if (session.role === "aluno") return `Alunos - ${session.studentGroupLabel || session.roleLabel || "Itens"}`;
+    return session.roleLabel || session.role || "Perfil";
+}
+
+function getSavedAccessSession() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.accessSession);
+        if (!raw) return null;
+
+        const session = JSON.parse(raw);
+        if (!session || !session.token || !session.role || !session.expiresAt) return null;
+
+        if (new Date(session.expiresAt).getTime() <= Date.now()) {
+            localStorage.removeItem(STORAGE_KEYS.accessSession);
+            return null;
+        }
+
+        return session;
+    } catch (error) {
+        console.error(error);
+        localStorage.removeItem(STORAGE_KEYS.accessSession);
+        return null;
     }
+}
+
+function saveAccessSession(session) {
+    localStorage.setItem(STORAGE_KEYS.accessSession, JSON.stringify(session));
+}
+
+function requireSession() {
+    const session = currentSession || getSavedAccessSession();
+    if (!session) {
+        setAppLocked();
+        throw new Error("Sessão expirada. Informe a chave novamente.");
+    }
+    currentSession = session;
+    return session;
+}
+
+function authParams(extra = {}) {
+    const session = requireSession();
+    return {
+        token: session.token,
+        deviceId: getDeviceId(),
+        ...extra
+    };
+}
+
+function initializeDeviceCode() {
+    getDeviceId();
+}
+
+function getDeviceId() {
+    let deviceId = localStorage.getItem(STORAGE_KEYS.deviceId);
+    if (!deviceId) {
+        deviceId = createShortDeviceId();
+        localStorage.setItem(STORAGE_KEYS.deviceId, deviceId);
+    }
+    return deviceId;
+}
+
+function createShortDeviceId() {
+    const randomPart = window.crypto && crypto.randomUUID
+        ? crypto.randomUUID().split("-")[0]
+        : Math.random().toString(36).substring(2, 10);
+    return `DEV-${randomPart.toUpperCase()}`;
+}
+
+function getDeviceInfo() {
+    return {
+        deviceId: getDeviceId(),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        datetimeIso: new Date().toISOString()
+    };
 }
 
 function setupEventListeners() {
@@ -121,10 +279,13 @@ function setupEventListeners() {
         });
     });
 
-    document.getElementById("search-input").addEventListener("input", (e) => {
-        searchTerm = e.target.value.toLowerCase();
-        renderItems();
-    });
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            renderItems();
+        });
+    }
 
     const sellerInput = document.getElementById("seller-name");
     if (sellerInput) {
@@ -145,8 +306,28 @@ function setupEventListeners() {
 function restoreSellerName() {
     const sellerInput = document.getElementById("seller-name");
     if (!sellerInput) return;
-
     sellerInput.value = getCookie(COOKIE_KEYS.seller) || "";
+}
+
+function switchAdminView(view) {
+    if (!currentSession || currentSession.role !== "admin") return;
+    showOnlyScreen(view);
+    document.querySelectorAll(".admin-tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+    });
+
+    if (view === "student") loadStudentPanel();
+    if (view === "charts") loadSalesDashboard();
+}
+
+function showOnlyScreen(screen) {
+    const cash = document.getElementById("cash-screen");
+    const student = document.getElementById("student-screen");
+    const charts = document.getElementById("charts-screen");
+
+    cash?.classList.toggle("hidden", screen !== "cash");
+    student?.classList.toggle("hidden", screen !== "student");
+    charts?.classList.toggle("hidden", screen !== "charts");
 }
 
 function setPaymentMethod(method) {
@@ -178,14 +359,10 @@ function updatePaymentMethodDisplay() {
 
 function getPaymentMethodLabel(method) {
     switch (method) {
-        case "cash":
-            return "Dinheiro";
-        case "pix":
-            return "PIX";
-        case "card":
-            return "Cartão +5%";
-        default:
-            return "Dinheiro";
+        case "cash": return "Dinheiro";
+        case "pix": return "PIX";
+        case "card": return "Cartão +5%";
+        default: return "Dinheiro";
     }
 }
 
@@ -195,6 +372,8 @@ function getCurrentPrice(item) {
 
 function renderItems() {
     const container = document.getElementById("items-container");
+    if (!container) return;
+
     container.innerHTML = "";
 
     const generalTotal = getOrderTotal();
@@ -219,19 +398,17 @@ function renderItems() {
         const price = getCurrentPrice(item);
         const quantity = quantities[item.name] || 0;
         const itemTotal = quantity * price;
+        const imagePath = item.image ? `images/${item.image}` : "images/default.png";
 
         const itemElement = document.createElement("div");
         itemElement.className = `item-card category-${item.category}`;
-
-        const imagePath = item.image ? `images/${item.image}` : "images/default.png";
-
         itemElement.innerHTML = `
             <div class="item-header">
                 <div class="item-name-container">
-                    <div class="item-name">${item.name}</div>
+                    <div class="item-name">${escapeHtml(item.name)}</div>
                     <div class="item-price">R$ ${formatCurrency(price)}</div>
                 </div>
-                <img src="${imagePath}" alt="${item.name}" class="item-image" onerror="this.src='images/default.png'">
+                <img src="${imagePath}" alt="${escapeHtml(item.name)}" class="item-image" onerror="this.src='images/default.png'">
             </div>
             <div class="item-body">
                 <div class="price-display">
@@ -241,11 +418,11 @@ function renderItems() {
                 ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ""}
                 <div class="item-controls">
                     <div class="quantity-control">
-                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, -1)">
+                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, -1)" aria-label="Remover ${escapeHtml(item.name)}">
                             <i class="fas fa-minus"></i>
                         </button>
                         <div class="quantity-value">${quantity}</div>
-                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, 1)">
+                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, 1)" aria-label="Adicionar ${escapeHtml(item.name)}">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -264,8 +441,8 @@ function renderItems() {
 
 function changeQuantity(itemIndex, change) {
     const item = items[itemIndex];
-    quantities[item.name] += change;
-    if (quantities[item.name] < 0) quantities[item.name] = 0;
+    if (!item) return;
+    quantities[item.name] = Math.max((quantities[item.name] || 0) + change, 0);
     renderItems();
 }
 
@@ -290,14 +467,17 @@ function clearCurrentSale() {
 }
 
 function updateSummary(total, count) {
-    document.getElementById("total-value").textContent = formatCurrency(total);
-    document.getElementById("items-count").textContent = `${count} ${count === 1 ? "item" : "itens"}`;
+    const totalValue = document.getElementById("total-value");
+    const itemsCount = document.getElementById("items-count");
+    if (totalValue) totalValue.textContent = formatCurrency(total);
+    if (itemsCount) itemsCount.textContent = `${count} ${count === 1 ? "item" : "itens"}`;
 }
 
 function updateOrderSummary() {
     const orderItemsContainer = document.getElementById("order-items");
-    orderItemsContainer.innerHTML = "";
+    if (!orderItemsContainer) return;
 
+    orderItemsContainer.innerHTML = "";
     let orderTotal = 0;
     let hasItems = false;
 
@@ -313,7 +493,7 @@ function updateOrderSummary() {
             itemElement.className = "order-item";
             itemElement.innerHTML = `
                 <div class="order-item-main">
-                    <span class="order-item-name">${item.name}</span>
+                    <span class="order-item-name">${escapeHtml(item.name)}</span>
                     <span class="order-item-quantity">${quantity}x</span>
                 </div>
                 <div class="order-item-actions">
@@ -326,12 +506,12 @@ function updateOrderSummary() {
                     <div class="order-item-price">R$ ${formatCurrency(itemTotal)}</div>
                 </div>
             `;
-
             orderItemsContainer.appendChild(itemElement);
         }
     });
 
-    document.getElementById("order-total-value").textContent = formatCurrency(orderTotal);
+    const orderTotalValue = document.getElementById("order-total-value");
+    if (orderTotalValue) orderTotalValue.textContent = formatCurrency(orderTotal);
 
     if (!hasItems) {
         orderItemsContainer.innerHTML = '<div class="no-items">Nenhum item adicionado</div>';
@@ -403,6 +583,7 @@ function getSellerName() {
 }
 
 function buildSaleRecord() {
+    const session = requireSession();
     const total = getOrderTotal();
     const paid = paymentMethod === "cash" ? amountPaid : total;
     const change = paymentMethod === "cash" ? Math.max(paid - total, 0) : 0;
@@ -417,7 +598,11 @@ function buildSaleRecord() {
         total,
         amountPaid: paid,
         change,
-        items: getSelectedItems()
+        items: getSelectedItems(),
+        deviceId: getDeviceId(),
+        deviceInfo: getDeviceInfo(),
+        accessRole: session.role,
+        accessRoleLabel: getDisplayRoleLabel(session)
     };
 }
 
@@ -452,19 +637,21 @@ async function launchSale() {
     setSaleButtonsDisabled(true);
 
     try {
-        saveSaleLocally(sale);
+        const response = await jsonpRequest(authParams({
+            action: "launch",
+            sale: JSON.stringify(sale)
+        }));
 
-        if (isBackendConfigured()) {
-            await sendSaleToBackend(sale);
-            alert("Venda lançada. O registro foi enviado para o TXT central e também ficou salvo como backup local neste aparelho.");
-        } else {
-            alert("Venda lançada apenas no backup local deste aparelho. Para gravar no TXT central, configure BACKEND_URL no arquivo src/script.js.");
+        if (!response.ok) {
+            throw new Error(response.message || "A venda não foi registrada no backend.");
         }
 
+        saveSaleLocally(sale);
+        alert(`Venda lançada no registro central.\nCódigo do dispositivo: ${getDeviceId()}`);
         clearCurrentSale();
     } catch (error) {
         console.error(error);
-        alert("A venda ficou salva no backup local, mas ocorreu erro ao enviar para o registro central. Verifique internet e configuração do Apps Script.");
+        alert(error.message || "Erro ao lançar a venda. Verifique internet, chave de acesso e Apps Script.");
     } finally {
         saleInProgress = false;
         setSaleButtonsDisabled(false);
@@ -491,29 +678,23 @@ async function undoLastSale() {
     setSaleButtonsDisabled(true);
 
     try {
-        let sale = null;
+        const response = await jsonpRequest(authParams({
+            action: "undo",
+            sellerName
+        }));
 
-        if (isBackendConfigured()) {
-            const response = await requestUndoFromBackend(sellerName);
-            if (!response.ok) {
-                alert(response.message || "Não encontrei venda ativa para esse professor.");
-                return;
-            }
-            sale = response.sale;
-            removeLocalSaleById(sale.saleId);
-        } else {
-            sale = removeLastLocalSaleBySeller(sellerName);
-            if (!sale) {
-                alert("Não encontrei venda local para esse professor neste aparelho.");
-                return;
-            }
+        if (!response.ok) {
+            alert(response.message || "Não encontrei venda ativa para esse professor.");
+            return;
         }
 
+        const sale = response.sale;
+        removeLocalSaleById(sale.saleId);
         restoreSaleForEditing(sale);
         alert("Última venda recuperada para edição. Corrija o pedido e clique em Lançar Venda novamente.");
     } catch (error) {
         console.error(error);
-        alert("Não foi possível voltar a última venda. Verifique a internet e a URL do Apps Script.");
+        alert(error.message || "Não foi possível voltar a última venda. Verifique a internet e a URL do Apps Script.");
     } finally {
         undoInProgress = false;
         setSaleButtonsDisabled(false);
@@ -566,57 +747,16 @@ function removeLocalSaleById(saleId) {
     localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(filteredSales));
 }
 
-function removeLastLocalSaleBySeller(sellerName) {
-    const sales = getLocalSales();
-    const normalizedSeller = normalizeText(sellerName);
-
-    for (let i = sales.length - 1; i >= 0; i--) {
-        if (normalizeText(sales[i].sellerName) === normalizedSeller) {
-            const [sale] = sales.splice(i, 1);
-            localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(sales));
-            return sale;
-        }
-    }
-
-    return null;
-}
-
-async function sendSaleToBackend(sale) {
-    await fetch(BACKEND_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({
-            action: "launch",
-            sale
-        })
-    });
-}
-
-function requestUndoFromBackend(sellerName) {
-    return jsonpRequest({
-        action: "undo",
-        sellerName
-    });
-}
-
-function requestSalesSummaryFromBackend() {
-    return jsonpRequest({
-        action: "summary"
-    });
-}
-
 async function toggleChartsPanel() {
-    const panel = document.getElementById("charts-panel");
-    if (!panel) return;
+    const chartsScreen = document.getElementById("charts-screen");
+    if (!chartsScreen) return;
 
-    const willShow = panel.classList.contains("hidden");
-    panel.classList.toggle("hidden");
+    const willShow = chartsScreen.classList.contains("hidden");
+    chartsScreen.classList.toggle("hidden");
 
     if (willShow) {
         await loadSalesDashboard();
+        chartsScreen.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 }
 
@@ -624,32 +764,22 @@ async function loadSalesDashboard() {
     if (chartsInProgress) return;
 
     chartsInProgress = true;
-    setChartsStatus("Carregando dados das vendas...", "neutral");
+    setChartsStatus("Carregando resumo das vendas...", "neutral");
     setChartsRefreshDisabled(true);
 
     try {
-        let summary = null;
-        let sourceLabel = "";
-
-        if (isBackendConfigured()) {
-            const response = await requestSalesSummaryFromBackend();
-            if (!response.ok) {
-                throw new Error(response.message || "Não foi possível consultar o resumo central.");
-            }
-            summary = normalizeDashboardSummary(response.summary);
-            sourceLabel = "Dados carregados do TXT central no Google Drive.";
-        } else {
-            summary = buildDashboardSummaryFromSales(getLocalSales());
-            sourceLabel = "Dados carregados apenas do backup local deste aparelho. Configure BACKEND_URL para visualizar o caixa geral.";
+        const response = await jsonpRequest(authParams({ action: "summary" }));
+        if (!response.ok) {
+            throw new Error(response.message || "Não foi possível carregar o resumo.");
         }
 
-        renderSalesDashboard(summary, sourceLabel);
+        renderSalesDashboard(response.summary, "Dados carregados do TXT central no Google Drive.");
         setChartsStatus("Gráficos atualizados.", "success");
     } catch (error) {
         console.error(error);
         const fallbackSummary = buildDashboardSummaryFromSales(getLocalSales());
         renderSalesDashboard(fallbackSummary, "Não foi possível consultar o TXT central. Exibindo apenas o backup local deste aparelho.");
-        setChartsStatus("Erro ao consultar o registro central. Verifique internet, URL do Apps Script e implantação do Web App.", "danger");
+        setChartsStatus(error.message || "Erro ao consultar o registro central.", "danger");
     } finally {
         chartsInProgress = false;
         setChartsRefreshDisabled(false);
@@ -718,6 +848,157 @@ function renderSalesDashboard(summary, sourceLabel) {
     });
 }
 
+async function loadStudentPanel() {
+    if (studentActionInProgress) return;
+
+    studentActionInProgress = true;
+    setStudentStatus("Carregando itens vendidos...", "neutral");
+    setStudentButtonsDisabled(true);
+
+    try {
+        const response = await jsonpRequest(authParams({ action: "studentStatus" }));
+        if (!response.ok) {
+            throw new Error(response.message || "Não foi possível carregar os itens.");
+        }
+
+        renderStudentPanel(response);
+        setStudentStatus("Itens atualizados.", "success");
+    } catch (error) {
+        console.error(error);
+        setStudentStatus(error.message || "Erro ao carregar os itens vendidos.", "danger");
+    } finally {
+        studentActionInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
+}
+
+function renderStudentPanel(response) {
+    const container = document.getElementById("student-items-container");
+    const scopeText = document.getElementById("student-scope-text");
+    if (!container) return;
+
+    const session = requireSession();
+    const panelItems = Array.isArray(response.items) ? response.items : [];
+    const title = session.role === "admin"
+        ? "Admin: todos os itens vendidos e pendentes."
+        : `Itens liberados para ${response.studentGroupLabel || session.studentGroupLabel || "este grupo"}.`;
+
+    if (scopeText) scopeText.textContent = title;
+
+    if (panelItems.length === 0) {
+        container.innerHTML = '<div class="no-items">Nenhum item vendido para este grupo ainda.</div>';
+        return;
+    }
+
+    container.innerHTML = panelItems.map((item, index) => {
+        const pending = Math.max(Number(item.pending) || 0, 0);
+        const sold = Number(item.sold) || 0;
+        const fulfilled = Number(item.fulfilled) || 0;
+        const adminRemoved = Number(item.adminRemoved) || 0;
+        const disabled = pending <= 0 ? "disabled" : "";
+        const adminControls = session.role === "admin" ? `
+            <div class="admin-item-adjust">
+                <button type="button" class="admin-remove-item-btn" onclick="adminRemoveItem('${escapeJs(item.name)}', ${index})">
+                    <i class="fas fa-triangle-exclamation"></i> Remover quantidade
+                </button>
+            </div>
+        ` : "";
+
+        return `
+            <article class="student-item-card">
+                <div class="student-item-title">
+                    <h3>${escapeHtml(item.name)}</h3>
+                    <span>${escapeHtml(item.category || "")}</span>
+                </div>
+                <div class="student-counters">
+                    <div><span>Vendidos</span><strong>${sold}</strong></div>
+                    <div><span>Feitos/retirados</span><strong>${fulfilled}</strong></div>
+                    <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
+                    <div class="pending-counter"><span>Pendentes</span><strong>${pending}</strong></div>
+                </div>
+                <div class="student-action-row">
+                    <input id="fulfill-qty-${index}" type="number" min="1" max="${Math.max(pending, 1)}" value="${pending > 0 ? 1 : 0}" inputmode="numeric" ${disabled}>
+                    <button type="button" class="mark-done-btn" onclick="markItemFulfilled('${escapeJs(item.name)}', ${index})" ${disabled}>
+                        <i class="fas fa-check"></i> Marcar como feito
+                    </button>
+                </div>
+                ${adminControls}
+            </article>
+        `;
+    }).join("");
+}
+
+async function markItemFulfilled(itemName, index) {
+    const input = document.getElementById(`fulfill-qty-${index}`);
+    const quantity = Math.max(Number(input?.value) || 0, 0);
+
+    if (quantity <= 0) {
+        alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    if (!confirm(`Marcar ${quantity} unidade(s) de ${itemName} como feita(s)/retirada(s)?`)) return;
+
+    studentActionInProgress = true;
+    setStudentButtonsDisabled(true);
+    setStudentStatus("Registrando baixa do item...", "neutral");
+
+    try {
+        const response = await jsonpRequest(authParams({
+            action: "fulfillItem",
+            itemName,
+            quantity: String(quantity)
+        }));
+
+        if (!response.ok) throw new Error(response.message || "Não foi possível registrar a baixa.");
+        await loadStudentPanel();
+    } catch (error) {
+        console.error(error);
+        setStudentStatus(error.message || "Erro ao marcar item como feito.", "danger");
+    } finally {
+        studentActionInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
+}
+
+async function adminRemoveItem(itemName, index) {
+    const session = requireSession();
+    if (session.role !== "admin") return;
+
+    const input = document.getElementById(`fulfill-qty-${index}`);
+    const quantity = Math.max(Number(input?.value) || 0, 0);
+
+    if (quantity <= 0) {
+        alert("Informe a quantidade a remover no campo ao lado.");
+        return;
+    }
+
+    const reason = prompt(`Motivo para remover ${quantity} unidade(s) de ${itemName} do total pendente/vendido:`, "Ajuste manual do admin");
+    if (reason === null) return;
+
+    studentActionInProgress = true;
+    setStudentButtonsDisabled(true);
+    setStudentStatus("Registrando ajuste do admin...", "neutral");
+
+    try {
+        const response = await jsonpRequest(authParams({
+            action: "adminRemoveItem",
+            itemName,
+            quantity: String(quantity),
+            reason: reason || "Ajuste manual do admin"
+        }));
+
+        if (!response.ok) throw new Error(response.message || "Não foi possível registrar o ajuste.");
+        await loadStudentPanel();
+    } catch (error) {
+        console.error(error);
+        setStudentStatus(error.message || "Erro ao registrar ajuste do admin.", "danger");
+    } finally {
+        studentActionInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
+}
+
 function renderBarChart(containerId, data, options = {}) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -768,11 +1049,7 @@ function buildDashboardSummaryFromSales(sales) {
         summary.payments[paymentMethodKey].revenue += total;
 
         if (!sellerMap.has(sellerKey)) {
-            sellerMap.set(sellerKey, {
-                name: sellerName,
-                sales: 0,
-                revenue: 0
-            });
+            sellerMap.set(sellerKey, { name: sellerName, sales: 0, revenue: 0 });
         }
 
         const sellerData = sellerMap.get(sellerKey);
@@ -788,11 +1065,7 @@ function buildDashboardSummaryFromSales(sales) {
             summary.totalItems += quantity;
 
             if (!itemMap.has(itemKey)) {
-                itemMap.set(itemKey, {
-                    name: itemName,
-                    quantity: 0,
-                    revenue: 0
-                });
+                itemMap.set(itemKey, { name: itemName, quantity: 0, revenue: 0 });
             }
 
             const itemData = itemMap.get(itemKey);
@@ -803,7 +1076,6 @@ function buildDashboardSummaryFromSales(sales) {
 
     summary.items = Array.from(itemMap.values());
     summary.sellers = Array.from(sellerMap.values());
-
     return summary;
 }
 
@@ -861,7 +1133,13 @@ function normalizePaymentMethod(method) {
 function setChartsStatus(message, type = "neutral") {
     const status = document.getElementById("charts-status");
     if (!status) return;
+    status.textContent = message;
+    status.className = `charts-status ${type}`;
+}
 
+function setStudentStatus(message, type = "neutral") {
+    const status = document.getElementById("student-status");
+    if (!status) return;
     status.textContent = message;
     status.className = `charts-status ${type}`;
 }
@@ -872,51 +1150,9 @@ function setChartsRefreshDisabled(disabled) {
     });
 }
 
-function escapeHtml(value) {
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function jsonpRequest(params) {
-    return new Promise((resolve, reject) => {
-        const callbackName = `festaJuninaCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-        const url = new URL(BACKEND_URL);
-
-        Object.entries(params).forEach(([key, value]) => {
-            url.searchParams.set(key, value);
-        });
-        url.searchParams.set("callback", callbackName);
-
-        const script = document.createElement("script");
-        let timeoutId = null;
-
-        function cleanup() {
-            if (timeoutId) clearTimeout(timeoutId);
-            delete window[callbackName];
-            script.remove();
-        }
-
-        window[callbackName] = (data) => {
-            cleanup();
-            resolve(data);
-        };
-
-        script.onerror = () => {
-            cleanup();
-            reject(new Error("Erro ao consultar o Apps Script."));
-        };
-
-        timeoutId = setTimeout(() => {
-            cleanup();
-            reject(new Error("Tempo esgotado ao consultar o Apps Script."));
-        }, 12000);
-
-        script.src = url.toString();
-        document.body.appendChild(script);
+function setStudentButtonsDisabled(disabled) {
+    document.querySelectorAll(".refresh-student-btn, .mark-done-btn, .admin-remove-item-btn").forEach(btn => {
+        btn.disabled = disabled;
     });
 }
 
@@ -944,19 +1180,13 @@ function getCookie(name) {
             return decodeURIComponent(current.substring(encodedName.length));
         }
     }
-
     return "";
-}
-
-function isBackendConfigured() {
-    return BACKEND_URL.trim() !== "";
 }
 
 function parseCurrencyInput(value) {
     const normalized = String(value || "")
         .replace(/[^0-9,.]/g, "")
         .replace(",", ".");
-
     return Number(normalized) || 0;
 }
 
@@ -973,9 +1203,69 @@ function normalizeText(value) {
 }
 
 function createSaleId() {
-    if (window.crypto && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
-
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     return `venda-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+}
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function escapeJs(value) {
+    return String(value || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, " ")
+        .replace(/\r/g, " ");
+}
+
+function jsonpRequest(params) {
+    return new Promise((resolve, reject) => {
+        if (!BACKEND_URL || !BACKEND_URL.trim()) {
+            reject(new Error("BACKEND_URL não está configurado."));
+            return;
+        }
+
+        const callbackName = `festaJuninaCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const url = new URL(BACKEND_URL);
+
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                url.searchParams.set(key, value);
+            }
+        });
+        url.searchParams.set("callback", callbackName);
+
+        const script = document.createElement("script");
+        let timeoutId = null;
+
+        function cleanup() {
+            if (timeoutId) clearTimeout(timeoutId);
+            delete window[callbackName];
+            script.remove();
+        }
+
+        window[callbackName] = (data) => {
+            cleanup();
+            resolve(data);
+        };
+
+        script.onerror = () => {
+            cleanup();
+            reject(new Error("Erro ao consultar o Apps Script."));
+        };
+
+        timeoutId = setTimeout(() => {
+            cleanup();
+            reject(new Error("Tempo esgotado ao consultar o Apps Script."));
+        }, 15000);
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+    });
 }
