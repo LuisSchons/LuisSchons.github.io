@@ -19,7 +19,7 @@ const items = [
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
     { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
     { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", description: "Morango, uva e maracujá", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png",  description: "Morango, uva e maracujá", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
 
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
@@ -1037,7 +1037,7 @@ function renderSalesDashboard(summary, sourceLabel) {
 
 function startStudentAutoRefresh() {
     // Atualização automática desativada.
-    // A Visão Aluno atualiza somente ao clicar em Atualizar ou após registrar retirada.
+    // A Visão Aluno atualiza somente ao clicar em Atualizar.
 }
 
 function stopStudentAutoRefresh() {
@@ -1138,7 +1138,7 @@ async function loadStudentView(silent = false) {
         if (statusBox) {
             const now = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
             statusBox.textContent = response.fallbackFromSummary
-                ? `Visão aluno atualizada às ${now}. Atenção: usando fallback dos gráficos; atualize o Apps Script para registrar retiradas.`
+                ? `Visão aluno atualizada às ${now}. Dados carregados a partir dos gráficos.`
                 : `Visão aluno atualizada às ${now}.`;
             statusBox.className = response.fallbackFromSummary ? "charts-status neutral" : "charts-status success";
         }
@@ -1166,7 +1166,7 @@ function renderStudentView(statusItems) {
     const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
 
     if (scopeText) {
-        scopeText.textContent = `${scope.label}: acompanhe fichas vendidas, arrecadação, fichas já retiradas e fichas pendentes.`;
+        scopeText.textContent = `${scope.label}: acompanhe apenas as fichas vendidas e o valor arrecadado.`;
     }
 
     const visibleItems = items.filter(item => allowedSet.has(normalizeText(item.name)));
@@ -1176,21 +1176,17 @@ function renderStudentView(statusItems) {
         return;
     }
 
-    container.innerHTML = visibleItems.map((item, index) => {
+    container.innerHTML = visibleItems.map((item) => {
         const key = normalizeText(item.name);
         const status = statusMap.get(key) || {};
         const sold = Number(status.sold) || 0;
         const revenue = Number(status.revenue) || 0;
-        const withdrawn = Number(status.withdrawn) || 0;
-        const pending = Math.max(sold - withdrawn, 0);
-        const draftQty = studentWithdrawalDraft[key] || 0;
         const imagePath = item.image ? `images/${item.image}` : "images/default.png";
         const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
         const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
-        const withdrawnPercent = sold > 0 ? Math.min((withdrawn / sold) * 100, 100) : 0;
 
         return `
-            <div class="item-card student-card category-${item.category}">
+            <div class="item-card student-card student-view-only-card category-${item.category}">
                 <div class="item-header">
                     <div class="item-name-container">
                         <div class="item-name">${escapeHtml(item.name)}</div>
@@ -1198,6 +1194,7 @@ function renderStudentView(statusItems) {
                     </div>
                     <img src="${imagePath}" alt="${escapeHtml(item.name)}" class="item-image" onerror="this.src='images/default.png'">
                 </div>
+
                 <div class="item-body">
                     <div class="student-card-meta">
                         ${item.ownerGroup ? `<span>Responsável: ${escapeHtml(item.ownerGroup)}</span>` : ""}
@@ -1205,32 +1202,24 @@ function renderStudentView(statusItems) {
                     </div>
 
                     <div class="student-progress-block">
-                        <div class="student-progress-label"><span>Vendidas</span><strong>${sold}${fichaLimit === null ? "" : ` / ${fichaLimit}`}</strong></div>
-                        <div class="student-progress-track"><div class="student-progress-fill sold-fill" style="width: ${soldPercent}%"></div></div>
-                        <div class="student-progress-label"><span>Retiradas</span><strong>${withdrawn} / ${sold}</strong></div>
-                        <div class="student-progress-track"><div class="student-progress-fill withdrawn-fill" style="width: ${withdrawnPercent}%"></div></div>
-                    </div>
-
-                    <div class="student-stats-grid">
-                        <div><span>Vendidas</span><strong>${sold}</strong></div>
-                        <div><span>Arrecadado</span><strong>R$ ${formatCurrency(revenue)}</strong></div>
-                        <div><span>Retiradas</span><strong>${withdrawn}</strong></div>
-                        <div><span>A retirar</span><strong>${pending}</strong></div>
-                    </div>
-
-                    <div class="student-withdraw-row">
-                        <div class="quantity-control">
-                            <button class="quantity-btn" onclick="changeStudentWithdrawal('${escapeJs(item.name)}', -1)" ${draftQty <= 0 ? "disabled" : ""}>
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <div class="quantity-value">${draftQty}</div>
-                            <button class="quantity-btn" onclick="changeStudentWithdrawal('${escapeJs(item.name)}', 1)" ${pending <= 0 || draftQty >= pending ? "disabled" : ""}>
-                                <i class="fas fa-plus"></i>
-                            </button>
+                        <div class="student-progress-label">
+                            <span>Fichas vendidas</span>
+                            <strong>${sold}${fichaLimit === null ? "" : ` / ${fichaLimit}`}</strong>
                         </div>
-                        <button class="student-register-btn" onclick="registerStudentWithdrawal('${escapeJs(item.name)}')" ${draftQty <= 0 ? "disabled" : ""}>
-                            <i class="fas fa-check"></i> Registrar retirada
-                        </button>
+                        <div class="student-progress-track">
+                            <div class="student-progress-fill sold-fill" style="width: ${soldPercent}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="student-stats-grid student-stats-grid-view-only">
+                        <div>
+                            <span>Fichas vendidas</span>
+                            <strong>${sold}</strong>
+                        </div>
+                        <div>
+                            <span>Valor arrecadado</span>
+                            <strong>R$ ${formatCurrency(revenue)}</strong>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1239,78 +1228,12 @@ function renderStudentView(statusItems) {
 }
 
 function changeStudentWithdrawal(itemName, change) {
-    const key = normalizeText(itemName);
-    const current = studentWithdrawalDraft[key] || 0;
-    studentWithdrawalDraft[key] = Math.max(current + change, 0);
-    renderStudentView(latestStudentStatusItems);
+    // Função mantida apenas por compatibilidade.
+    // A Visão Aluno agora é somente consulta e não registra retiradas.
 }
 
 async function registerStudentWithdrawal(itemName) {
-    const fallbackItem = (latestStudentStatusItems || []).find(row => normalizeText(row.name) === normalizeText(itemName));
-
-    if (fallbackItem && fallbackItem.fallbackFromSummary) {
-        alert("A tela está usando fallback dos gráficos. Para registrar retiradas, atualize e publique o AppsScript-TXT-Drive.js desta versão.");
-        return;
-    }
-
-    const key = normalizeText(itemName);
-    const quantity = studentWithdrawalDraft[key] || 0;
-
-    if (quantity <= 0) {
-        alert("Use os botões + e - para informar quantas fichas foram retiradas.");
-        return;
-    }
-
-    if (!confirm(`Registrar retirada de ${quantity} ficha(s) de ${itemName}?`)) {
-        return;
-    }
-
-    studentInProgress = true;
-    setStudentButtonsDisabled(true);
-
-    const statusBox = document.getElementById("student-status");
-
-    if (statusBox) {
-        statusBox.textContent = "Registrando retirada no TXT central...";
-        statusBox.className = "charts-status neutral";
-    }
-
-    try {
-        const response = await requestStudentWithdrawalFromBackend(itemName, quantity);
-
-        if (!response.ok) {
-            throw new Error(response.message || "Não foi possível registrar a retirada.");
-        }
-
-        studentWithdrawalDraft[key] = 0;
-
-        if (statusBox) {
-            statusBox.textContent = "Retirada registrada. Atualizando tela...";
-            statusBox.className = "charts-status neutral";
-        }
-
-        /*
-         * Importante:
-         * libera a trava interna antes de chamar loadStudentView().
-         * Caso contrário, loadStudentView() retorna no começo por causa do:
-         * if (studentInProgress) return;
-         */
-        studentInProgress = false;
-        setStudentButtonsDisabled(false);
-
-        await loadStudentView();
-    } catch (error) {
-        console.error(error);
-        alert(error.message || "Erro ao registrar a retirada.");
-
-        if (statusBox) {
-            statusBox.textContent = "Erro ao registrar retirada.";
-            statusBox.className = "charts-status danger";
-        }
-    } finally {
-        studentInProgress = false;
-        setStudentButtonsDisabled(false);
-    }
+    alert("A Visão Aluno agora é somente consulta. Retiradas não são registradas por esta tela.");
 }
 
 function setStudentButtonsDisabled(disabled) {

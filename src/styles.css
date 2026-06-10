@@ -1344,3 +1344,27 @@ body.locked {
         font-size: 0.9rem;
     }
 }
+
+
+/* Visão Aluno somente consulta */
+.student-view-only-card .student-withdraw-row {
+    display: none !important;
+}
+
+.student-stats-grid-view-only {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.student-stats-grid-view-only div {
+    min-height: 72px;
+}
+
+.student-stats-grid-view-only strong {
+    font-size: 1.35rem;
+}
+
+@media (max-width: 600px) {
+    .student-stats-grid-view-only {
+        grid-template-columns: 1fr;
+    }
+}
