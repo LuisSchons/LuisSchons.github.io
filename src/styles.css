@@ -1291,3 +1291,25 @@ body.locked {
         grid-template-columns: 72px 1fr;
     }
 }
+
+
+/* Responsável e quantidade de fichas exibidos nos cards do caixa */
+.item-owner,
+.item-fichas {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background-color: #f3fff7;
+    color: var(--if-primary);
+    border: 1px solid rgba(0, 131, 62, 0.18);
+}
+
+.item-fichas {
+    background-color: #fff9df;
+    color: #7a5b00;
+    border-color: rgba(122, 91, 0, 0.2);
+}

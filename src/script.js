@@ -2,42 +2,54 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-
 
 const items = [
     // Salgados
-    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
-    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha." },
-    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha." },
-    { name: "Milho", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png" },
-    { name: "Pipoca Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png" },
+    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png", fichaLimit: 200, ownerGroup: "3º de Mineração" },
+    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png", fichaLimit: 200, ownerGroup: "3º de Informática" },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha.", fichaLimit: 140, ownerGroup: "2º de Mineração" },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha.", fichaLimit: 130, ownerGroup: "2º de Mineração" },
+    { name: "Pipoca Doce/Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-doce.png", fichaLimit: 150, ownerGroup: "2º de Informática" },
+    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", fichaLimit: 50, ownerGroup: "2º de Informática" },
+    { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", fichaLimit: 70, ownerGroup: "2º de Informática" },
 
     // Doces
-    { name: "Pipoca Doce", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "pipoca-doce.png" },
-    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png" },
-    { name: "Arroz Doce", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "arroz-doce.png" },
-    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
-    { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
+    { name: "Arroz Doce", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "arroz-doce.png", fichaLimit: null, ownerGroup: "2º de Informática" },
+    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png", fichaLimit: 200, ownerGroup: "1º de Informática" },
+    { name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", fichaLimit: 80, ownerGroup: "1º de Desenvolvimento de Sistemas" },
 
     // Bebidas
-    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png" },
-    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png" },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png" },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png" },
-
-    // Outros
-    { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png" }
+    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", fichaLimit: 48, ownerGroup: "Bebidas (3º Anos)" },
+    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", fichaLimit: 12, ownerGroup: "Bebidas (3º Anos)" },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", fichaLimit: 200, ownerGroup: "Bebidas (3º Anos)" },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", fichaLimit: 15, ownerGroup: "Bebidas (3º Anos)" }
 ];
 
 const FALLBACK_STUDENT_GROUPS = {
-    aluno1: {
-        label: "1º ano",
-        allowedItems: ["Pastel", "Caldo (Frango/Feijão)", "Cachorro Quente Tradicional", "Cachorro Quente Completo", "Milho", "Pipoca Salgada"]
+    bebidas3: {
+        label: "Bebidas (3º Anos)",
+        allowedItems: ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"]
     },
-    aluno2: {
-        label: "2º ano",
-        allowedItems: ["Pipoca Doce", "Pipoca de Leite Ninho", "Arroz Doce", "Maçã do Amor", "Canjica"]
+    terceiroMineracao: {
+        label: "3º de Mineração",
+        allowedItems: ["Caldo (Frango/Feijão)"]
     },
-    aluno3: {
-        label: "3º ano",
-        allowedItems: ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha", "Cartela de Bingo"]
+    terceiroInformatica: {
+        label: "3º de Informática",
+        allowedItems: ["Pastel"]
+    },
+    segundoMineracao: {
+        label: "2º de Mineração",
+        allowedItems: ["Cachorro Quente Tradicional", "Cachorro Quente Completo"]
+    },
+    segundoInformatica: {
+        label: "2º de Informática",
+        allowedItems: ["Pipoca Doce/Salgada", "Pipoca de Leite Ninho", "Milho Cozido", "Arroz Doce"]
+    },
+    primeiroInformatica: {
+        label: "1º de Informática",
+        allowedItems: ["Maçã do Amor"]
+    },
+    primeiroDs: {
+        label: "1º de Desenvolvimento de Sistemas",
+        allowedItems: ["Canjica"]
     }
 };
 
@@ -415,6 +427,8 @@ function renderItems() {
                     <span class="cash-price">Dinheiro/PIX: R$ ${formatCurrency(item.cashPrice)}</span>
                     <span class="card-price">Cartão: R$ ${formatCurrency(item.cardPrice)}</span>
                 </div>
+                ${item.ownerGroup ? `<div class="item-owner">Responsável: ${escapeHtml(item.ownerGroup)}</div>` : ""}
+                ${item.fichaLimit ? `<div class="item-fichas">Fichas: ${item.fichaLimit}</div>` : ""}
                 ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ""}
                 <div class="item-controls">
                     <div class="quantity-control">
@@ -895,6 +909,8 @@ function renderStudentPanel(response) {
         const sold = Number(item.sold) || 0;
         const fulfilled = Number(item.fulfilled) || 0;
         const adminRemoved = Number(item.adminRemoved) || 0;
+        const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
+        const remainingFichas = fichaLimit === null ? null : Math.max(fichaLimit - sold, 0);
         const disabled = pending <= 0 ? "disabled" : "";
         const adminControls = session.role === "admin" ? `
             <div class="admin-item-adjust">
@@ -915,6 +931,8 @@ function renderStudentPanel(response) {
                     <div><span>Feitos/retirados</span><strong>${fulfilled}</strong></div>
                     <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
                     <div class="pending-counter"><span>Pendentes</span><strong>${pending}</strong></div>
+                    <div><span>Fichas totais</span><strong>${fichaLimit === null ? "—" : fichaLimit}</strong></div>
+                    <div><span>Fichas não vendidas</span><strong>${remainingFichas === null ? "—" : remainingFichas}</strong></div>
                 </div>
                 <div class="student-action-row">
                     <input id="fulfill-qty-${index}" type="number" min="1" max="${Math.max(pending, 1)}" value="${pending > 0 ? 1 : 0}" inputmode="numeric" ${disabled}>
