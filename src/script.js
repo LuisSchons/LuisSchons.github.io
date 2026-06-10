@@ -18,9 +18,9 @@ const items = [
     // Bebidas
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
     { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
     { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
-    
+
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
 ];
@@ -81,12 +81,13 @@ let adminSelectedGroupKey = null;
 
 const STORAGE_KEYS = {
     sales: "festaJuninaSales",
-    accessProfile: "festaJuninaAccessProfileV3"
+    accessProfile: "festaJuninaAccessProfileV4",
+    deviceId: "festaJuninaDeviceIdAlunoLockV1"
 };
 
 const COOKIE_KEYS = {
     seller: "festaJuninaSellerName",
-    access: "festaJuninaAccessOkV3"
+    access: "festaJuninaAccessOkV4"
 };
 
 const CASHIER_PASSWORD = "CAIXA-LSk*[,LwxA1YD-ux8";
@@ -114,6 +115,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
+function getDeviceId() {
+    let deviceId = localStorage.getItem(STORAGE_KEYS.deviceId);
+
+    if (!deviceId) {
+        deviceId = createDeviceId();
+        localStorage.setItem(STORAGE_KEYS.deviceId, deviceId);
+    }
+
+    return deviceId;
+}
+
+function createDeviceId() {
+    const randomPart = window.crypto && crypto.randomUUID
+        ? crypto.randomUUID().split("-")[0]
+        : Math.random().toString(36).substring(2, 10);
+
+    return `IF-${randomPart.toUpperCase()}`;
+}
+
+function requestStudentAccessLock(profile) {
+    return jsonpRequest({
+        action: "lockStudentAccess",
+        groupKey: profile.groupKey,
+        groupLabel: profile.label,
+        deviceId: getDeviceId()
+    });
+}
+
+function requestStudentAccessRelease(profile) {
+    return jsonpRequest({
+        action: "releaseStudentAccess",
+        groupKey: profile.groupKey,
+        deviceId: getDeviceId()
+    });
+}
+
 function setupAccessGate() {
     const form = document.getElementById("password-form");
     const passwordInput = document.getElementById("site-password");
@@ -121,22 +159,53 @@ function setupAccessGate() {
 
     if (!form || !passwordInput) return;
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const profile = resolveAccessPassword(passwordInput.value.trim());
+        const password = passwordInput.value.trim();
+        const profile = resolveAccessPassword(password);
 
-        if (profile) {
+        if (!profile) {
+            if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
+            passwordInput.select();
+            return;
+        }
+
+        const submitButton = form.querySelector("button[type='submit']");
+        if (submitButton) submitButton.disabled = true;
+        if (errorBox) errorBox.textContent = "Validando acesso...";
+
+        try {
+            if (profile.role === "student") {
+                if (!isBackendConfigured()) {
+                    throw new Error("BACKEND_URL não configurado. A Visão Aluno precisa do Web App para controlar o acesso por turma.");
+                }
+
+                const lockResponse = await requestStudentAccessLock(profile);
+
+                if (!lockResponse.ok) {
+                    throw new Error(lockResponse.message || "Esta turma já está aberta em outro dispositivo.");
+                }
+
+                profile.deviceId = getDeviceId();
+                profile.lockExpiresAt = lockResponse.expiresAt || "";
+            }
+
             saveAccessProfile(profile);
+
             if (profile.role === "cashier") {
                 setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
             }
+
             passwordInput.value = "";
             if (errorBox) errorBox.textContent = "";
             setAppAccess(true, profile);
-        } else {
-            if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
+        } catch (error) {
+            console.error(error);
+            if (errorBox) errorBox.textContent = error.message || "Não foi possível validar o acesso.";
             passwordInput.select();
+        } finally {
+            if (submitButton) submitButton.disabled = false;
         }
     });
 }
@@ -197,7 +266,17 @@ function getSavedAccessProfile() {
     }
 }
 
-function logoutAccess() {
+async function logoutAccess() {
+    const profile = currentAccessProfile || getSavedAccessProfile();
+
+    try {
+        if (profile && profile.role === "student" && profile.groupKey && isBackendConfigured()) {
+            await requestStudentAccessRelease(profile);
+        }
+    } catch (error) {
+        console.warn("Não foi possível liberar a trava da turma:", error);
+    }
+
     localStorage.removeItem(STORAGE_KEYS.accessProfile);
     setCookie(COOKIE_KEYS.access, "", 0);
     currentAccessProfile = null;
@@ -264,6 +343,7 @@ function showCashierView(show) {
 
 function showStudentView(show) {
     document.getElementById("student-view")?.classList.toggle("hidden", !show);
+
     const title = document.getElementById("app-title");
 
     if (show && title) {
@@ -271,9 +351,6 @@ function showStudentView(show) {
         title.textContent = currentAccessProfile?.role === "admin"
             ? `Admin - ${scope.groupLabel}`
             : "Visão Aluno - Festa Junina 2026";
-        startStudentAutoRefresh();
-    } else {
-        stopStudentAutoRefresh();
     }
 }
 
@@ -959,23 +1036,12 @@ function renderSalesDashboard(summary, sourceLabel) {
 
 
 function startStudentAutoRefresh() {
-    stopStudentAutoRefresh();
-
-    studentAutoRefreshTimer = setInterval(() => {
-        const studentView = document.getElementById("student-view");
-        const isStudentVisible = studentView && !studentView.classList.contains("hidden");
-
-        if (isStudentVisible && !studentInProgress) {
-            loadStudentView(true);
-        }
-    }, 15000);
+    // Atualização automática desativada.
+    // A Visão Aluno atualiza somente ao clicar em Atualizar ou após registrar retirada.
 }
 
 function stopStudentAutoRefresh() {
-    if (studentAutoRefreshTimer) {
-        clearInterval(studentAutoRefreshTimer);
-        studentAutoRefreshTimer = null;
-    }
+    // Atualização automática desativada.
 }
 
 function buildStudentStatusFromSummary(summary) {
