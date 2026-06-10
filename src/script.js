@@ -62,7 +62,7 @@ const STUDENT_GROUPS = {
 ;
 
 const THIRD_YEAR_GROUP_KEYS = ["terceiroMineracao", "terceiroInformatica"];
-const THIRD_YEAR_SHARED_REVENUE_ITEMS = ["Refrigerante"];
+const THIRD_YEAR_SHARED_REVENUE_ITEMS = ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"];
 
 function getItemBasePrice(itemName) {
     const found = items.find(item => normalizeText(item.name) === normalizeText(itemName));
@@ -87,16 +87,21 @@ function shouldSplitThirdYearItem(itemName) {
         .includes(normalizeText(itemName));
 }
 
-function getStudentRevenueShare(itemName, revenue, scope) {
+function getStudentAllocatedRevenue(itemName, netRevenue, scope) {
+    /*
+     * Regra:
+     * - Nos cards dos itens: mostrar o valor líquido total do item, sem dividir.
+     * - No card central da turma: dividir por 2 apenas as bebidas compartilhadas dos 3º anos.
+     */
     if (
         scope &&
         THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey) &&
         shouldSplitThirdYearItem(itemName)
     ) {
-        return revenue / 2;
+        return netRevenue / 2;
     }
 
-    return revenue;
+    return netRevenue;
 }
 
 function calculateCurrentStudentTotals(statusItems) {
@@ -111,12 +116,26 @@ function calculateCurrentStudentTotals(statusItems) {
             const status = statusMap.get(normalizeText(item.name)) || {};
             const sold = Number(status.sold) || 0;
             const itemNetRevenue = getNetRevenueForStudentItem(item, status);
-            const itemShareRevenue = getStudentRevenueShare(item.name, itemNetRevenue, scope);
+            const allocatedRevenue = getStudentAllocatedRevenue(item.name, itemNetRevenue, scope);
 
             acc.sold += sold;
-            acc.revenue += itemShareRevenue;
+            acc.revenue += allocatedRevenue;
+
+            if (THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey) && shouldSplitThirdYearItem(item.name)) {
+                acc.sharedRevenueFull += itemNetRevenue;
+                acc.sharedRevenueAllocated += allocatedRevenue;
+            } else {
+                acc.ownRevenue += allocatedRevenue;
+            }
+
             return acc;
-        }, { sold: 0, revenue: 0 });
+        }, {
+            sold: 0,
+            revenue: 0,
+            ownRevenue: 0,
+            sharedRevenueFull: 0,
+            sharedRevenueAllocated: 0
+        });
 }
 
 function renderStudentClassTotal(statusItems) {
@@ -125,21 +144,30 @@ function renderStudentClassTotal(statusItems) {
 
     const scope = getCurrentStudentScope();
     const totals = calculateCurrentStudentTotals(statusItems);
+    const isThirdYear = THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey);
 
     panel.innerHTML = `
         <div class="student-class-total-card">
-            <div>
-                <span>Total arrecadado da turma</span>
+            <div class="student-class-total-main">
+                <span>Total da turma a receber</span>
                 <strong>R$ ${formatCurrency(totals.revenue)}</strong>
             </div>
             <div>
-                <span>Fichas vendidas nos itens da turma</span>
+                <span>Fichas vendidas nos itens visíveis</span>
                 <strong>${totals.sold}</strong>
             </div>
             ${
-                THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey)
-                    ? `<small>Observação: o valor do Refrigerante é dividido igualmente entre 3º Mineração e 3º Informática. A taxa de cartão não entra na arrecadação da turma.</small>`
-                    : `<small>A taxa de cartão não entra na arrecadação da turma.</small>`
+                isThirdYear
+                    ? `<small>
+                        Cálculo do total da turma: item próprio da turma + 50% das bebidas compartilhadas
+                        (Água Mineral, Água com Gás, Refrigerante e Suco de Caixinha).
+                        Nos cards abaixo, cada bebida aparece com o valor total vendido do item, sem dividir.
+                        A taxa de cartão não entra na arrecadação.
+                       </small>`
+                    : `<small>
+                        Cálculo do total da turma: soma dos itens da própria turma.
+                        A taxa de cartão não entra na arrecadação.
+                       </small>`
             }
         </div>
     `;
@@ -1252,7 +1280,7 @@ function renderStudentView(statusItems) {
     const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
 
     if (scopeText) {
-        scopeText.textContent = `${scope.label}: acompanhe as fichas vendidas e o valor arrecadado líquido, sem taxa de cartão.`;
+        scopeText.textContent = `${scope.label}: os cards mostram o total líquido de cada item; o card central mostra o total da turma a receber.`;
     }
 
     const visibleItems = items.filter(item => allowedSet.has(normalizeText(item.name)));
@@ -1269,11 +1297,7 @@ function renderStudentView(statusItems) {
         const key = normalizeText(item.name);
         const status = statusMap.get(key) || {};
         const sold = Number(status.sold) || 0;
-        const itemNetRevenue = getNetRevenueForStudentItem(item, status);
-        const revenue = getStudentRevenueShare(item.name, itemNetRevenue, scope);
-        const splitInfo = shouldSplitThirdYearItem(item.name) && THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey)
-            ? "Valor dividido por 2 para os 3º anos"
-            : "";
+        const revenue = getNetRevenueForStudentItem(item, status);
         const imagePath = item.image ? `images/${item.image}` : "images/default.png";
         const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
         const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
@@ -1310,9 +1334,8 @@ function renderStudentView(statusItems) {
                             <strong>${sold}</strong>
                         </div>
                         <div>
-                            <span>Valor arrecadado líquido</span>
+                            <span>Total líquido do item</span>
                             <strong>R$ ${formatCurrency(revenue)}</strong>
-                            ${splitInfo ? `<small>${splitInfo}</small>` : ""}
                         </div>
                     </div>
                 </div>
