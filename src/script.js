@@ -59,6 +59,92 @@ const STUDENT_GROUPS = {
         allowedItems: ["Canjica"]
     }
 };
+;
+
+const THIRD_YEAR_GROUP_KEYS = ["terceiroMineracao", "terceiroInformatica"];
+const THIRD_YEAR_SHARED_REVENUE_ITEMS = ["Refrigerante"];
+
+function getItemBasePrice(itemName) {
+    const found = items.find(item => normalizeText(item.name) === normalizeText(itemName));
+    return found ? Number(found.cashPrice) || 0 : 0;
+}
+
+function getNetRevenueForStudentItem(item, status) {
+    const sold = Number(status?.sold) || 0;
+    const basePrice = getItemBasePrice(item.name);
+    const grossFallback = Number(status?.revenue) || 0;
+
+    if (basePrice > 0) {
+        return sold * basePrice;
+    }
+
+    return grossFallback;
+}
+
+function shouldSplitThirdYearItem(itemName) {
+    return THIRD_YEAR_SHARED_REVENUE_ITEMS
+        .map(normalizeText)
+        .includes(normalizeText(itemName));
+}
+
+function getStudentRevenueShare(itemName, revenue, scope) {
+    if (
+        scope &&
+        THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey) &&
+        shouldSplitThirdYearItem(itemName)
+    ) {
+        return revenue / 2;
+    }
+
+    return revenue;
+}
+
+function calculateCurrentStudentTotals(statusItems) {
+    const scope = getCurrentStudentScope();
+    const allowedItems = scope.allowedItems || [];
+    const allowedSet = new Set(allowedItems.map(normalizeText));
+    const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
+
+    return items
+        .filter(item => allowedSet.has(normalizeText(item.name)))
+        .reduce((acc, item) => {
+            const status = statusMap.get(normalizeText(item.name)) || {};
+            const sold = Number(status.sold) || 0;
+            const itemNetRevenue = getNetRevenueForStudentItem(item, status);
+            const itemShareRevenue = getStudentRevenueShare(item.name, itemNetRevenue, scope);
+
+            acc.sold += sold;
+            acc.revenue += itemShareRevenue;
+            return acc;
+        }, { sold: 0, revenue: 0 });
+}
+
+function renderStudentClassTotal(statusItems) {
+    const panel = document.getElementById("student-class-total");
+    if (!panel) return;
+
+    const scope = getCurrentStudentScope();
+    const totals = calculateCurrentStudentTotals(statusItems);
+
+    panel.innerHTML = `
+        <div class="student-class-total-card">
+            <div>
+                <span>Total arrecadado da turma</span>
+                <strong>R$ ${formatCurrency(totals.revenue)}</strong>
+            </div>
+            <div>
+                <span>Fichas vendidas nos itens da turma</span>
+                <strong>${totals.sold}</strong>
+            </div>
+            ${
+                THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey)
+                    ? `<small>Observação: o valor do Refrigerante é dividido igualmente entre 3º Mineração e 3º Informática. A taxa de cartão não entra na arrecadação da turma.</small>`
+                    : `<small>A taxa de cartão não entra na arrecadação da turma.</small>`
+            }
+        </div>
+    `;
+}
+
 
 let quantities = {};
 items.forEach(item => {
@@ -1052,7 +1138,7 @@ function buildStudentStatusFromSummary(summary) {
         itemMap.set(normalizeText(item.name), {
             name: item.name,
             sold: Number(item.quantity) || 0,
-            revenue: Number(item.revenue) || 0,
+            revenue: (Number(item.quantity) || 0) * getItemBasePrice(item.name),
             withdrawn: 0,
             pending: Number(item.quantity) || 0
         });
@@ -1166,21 +1252,28 @@ function renderStudentView(statusItems) {
     const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
 
     if (scopeText) {
-        scopeText.textContent = `${scope.label}: acompanhe apenas as fichas vendidas e o valor arrecadado.`;
+        scopeText.textContent = `${scope.label}: acompanhe as fichas vendidas e o valor arrecadado líquido, sem taxa de cartão.`;
     }
 
     const visibleItems = items.filter(item => allowedSet.has(normalizeText(item.name)));
 
     if (visibleItems.length === 0) {
+        renderStudentClassTotal([]);
         container.innerHTML = '<div class="no-items">Nenhum item configurado para esta senha.</div>';
         return;
     }
+
+    renderStudentClassTotal(statusItems);
 
     container.innerHTML = visibleItems.map((item) => {
         const key = normalizeText(item.name);
         const status = statusMap.get(key) || {};
         const sold = Number(status.sold) || 0;
-        const revenue = Number(status.revenue) || 0;
+        const itemNetRevenue = getNetRevenueForStudentItem(item, status);
+        const revenue = getStudentRevenueShare(item.name, itemNetRevenue, scope);
+        const splitInfo = shouldSplitThirdYearItem(item.name) && THIRD_YEAR_GROUP_KEYS.includes(scope.groupKey)
+            ? "Valor dividido por 2 para os 3º anos"
+            : "";
         const imagePath = item.image ? `images/${item.image}` : "images/default.png";
         const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
         const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
@@ -1217,8 +1310,9 @@ function renderStudentView(statusItems) {
                             <strong>${sold}</strong>
                         </div>
                         <div>
-                            <span>Valor arrecadado</span>
+                            <span>Valor arrecadado líquido</span>
                             <strong>R$ ${formatCurrency(revenue)}</strong>
+                            ${splitInfo ? `<small>${splitInfo}</small>` : ""}
                         </div>
                     </div>
                 </div>
