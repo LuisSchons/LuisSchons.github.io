@@ -70,7 +70,7 @@ let ticketStatusInProgress = false;
 
 const STORAGE_KEYS = {
     sales: "festaJuninaSales",
-    accessSession: "festaJuninaAccessSessionV2",
+    accessSession: "festaJuninaAccessSessionV4",
     deviceId: "festaJuninaDeviceId"
 };
 
@@ -82,6 +82,7 @@ const SELLER_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
 const ACCESS_DURATION_DAYS = 7;
 
 document.addEventListener("DOMContentLoaded", () => {
+    clearLegacyAccessSessions();
     initializeDeviceCode();
     setupAccessGate();
     setupEventListeners();
@@ -97,6 +98,15 @@ document.addEventListener("DOMContentLoaded", () => {
         setAppLocked();
     }
 });
+
+function clearLegacyAccessSessions() {
+    [
+        "festaJuninaAccessSession",
+        "festaJuninaAccessSessionV1",
+        "festaJuninaAccessSessionV2",
+        "festaJuninaAccessSessionV3"
+    ].forEach(key => localStorage.removeItem(key));
+}
 
 function setupAccessGate() {
     const form = document.getElementById("password-form");
@@ -197,6 +207,7 @@ function setAppAccess(session) {
 function logoutAccess() {
     if (!confirm("Deseja sair deste dispositivo? Será necessário informar a chave novamente.")) return;
     localStorage.removeItem(STORAGE_KEYS.accessSession);
+    clearLegacyAccessSessions();
     setAppLocked();
 }
 
@@ -256,10 +267,15 @@ function initializeDeviceCode() {
 
 function getDeviceId() {
     let deviceId = localStorage.getItem(STORAGE_KEYS.deviceId);
-    if (!deviceId) {
+
+    // Versões anteriores geravam códigos iniciando com "DEV-".
+    // Isso confundia visualmente com "Desenvolvimento de Sistemas".
+    // Nesta versão, se o aparelho ainda tiver um código antigo, geramos um novo código "IF-".
+    if (!deviceId || String(deviceId).startsWith("DEV-")) {
         deviceId = createShortDeviceId();
         localStorage.setItem(STORAGE_KEYS.deviceId, deviceId);
     }
+
     return deviceId;
 }
 
@@ -267,7 +283,7 @@ function createShortDeviceId() {
     const randomPart = window.crypto && crypto.randomUUID
         ? crypto.randomUUID().split("-")[0]
         : Math.random().toString(36).substring(2, 10);
-    return `DEV-${randomPart.toUpperCase()}`;
+    return `IF-${randomPart.toUpperCase()}`;
 }
 
 function getDeviceInfo() {

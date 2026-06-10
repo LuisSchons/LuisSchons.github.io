@@ -1315,7 +1315,7 @@ body.locked {
 }
 
 
-/* Ajuste visual herdado para contadores dos alunos */
+/* Tela dos alunos somente consulta */
 .student-counters-readonly {
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 }
