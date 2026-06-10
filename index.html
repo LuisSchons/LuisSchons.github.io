@@ -11,198 +11,161 @@
     <div id="access-gate" class="access-gate" role="dialog" aria-modal="true" aria-labelledby="password-title">
         <form id="password-form" class="access-card">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="access-logo">
-            <h2 id="password-title">Acesso ao Sistema</h2>
-            <p>Informe a chave de acesso do seu perfil. O dispositivo ficará liberado por 7 dias.</p>
-            <label for="site-password">Chave de acesso</label>
-            <input type="password" id="site-password" autocomplete="current-password" placeholder="Cole a chave aqui">
+            <h2 id="password-title">Acesso ao Caixa</h2>
+            <p>Informe a senha para acessar a tela principal da venda.</p>
+            <label for="site-password">Senha de acesso</label>
+            <input type="password" id="site-password" autocomplete="current-password" placeholder="Digite a senha">
             <div id="password-error" class="password-error" aria-live="polite"></div>
             <button type="submit" class="access-btn">
                 <i class="fas fa-lock-open"></i> Entrar
             </button>
-            <div id="device-code-box" class="device-code-box"></div>
         </form>
     </div>
 
-    <div id="app-root" class="app-hidden">
-        <header>
-            <div class="logo-container">
-                <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
-            </div>
-            <h1>Festa Junina IF Goiano Catalão</h1>
-            <div class="session-bar">
-                <div>
-                    <strong id="session-role-label">Perfil</strong>
-                    <span id="session-device-code"></span>
+    <div id="app-root">
+    <header>
+        <div class="logo-container">
+            <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
+        </div>
+        <h1>Caixa - Festa Junina 2025</h1>
+    </header>
+
+    <main>
+        <div class="categories">
+            <button class="category-btn active" data-category="all">Todos</button>
+            <button class="category-btn" data-category="salgados">Salgados</button>
+            <button class="category-btn" data-category="doces">Doces</button>
+            <button class="category-btn" data-category="bebidas">Bebidas</button>
+            <button class="category-btn" data-category="outros">Outros</button>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Pesquisar item...">
+        </div>
+
+        <div class="seller-session">
+            <label for="seller-name"><i class="fas fa-user"></i> Professor responsável pelo caixa</label>
+            <input type="text" id="seller-name" placeholder="Ex.: Prof. Luís">
+        </div>
+
+        <div id="items-container" class="items-grid"></div>
+
+        <div class="summary">
+            <div class="summary-header">
+                <div class="total-container">
+                    <h2>Total Geral</h2>
+                    <div class="total-value">R$ <span id="total-value">0,00</span></div>
                 </div>
-                <button type="button" class="logout-btn" onclick="logoutAccess()">
-                    <i class="fas fa-right-from-bracket"></i> Sair
-                </button>
-            </div>
-        </header>
-
-        <main>
-            <nav id="admin-nav" class="admin-nav hidden">
-                <button type="button" class="admin-tab-btn active" data-view="cash" onclick="switchAdminView('cash')">
-                    <i class="fas fa-cash-register"></i> Caixa
-                </button>
-                <button type="button" class="admin-tab-btn" data-view="student" onclick="switchAdminView('student')">
-                    <i class="fas fa-utensils"></i> Painel dos Alunos
-                </button>
-                <button type="button" class="admin-tab-btn" data-view="charts" onclick="switchAdminView('charts')">
-                    <i class="fas fa-chart-column"></i> Gráficos
-                </button>
-            </nav>
-
-            <section id="cash-screen" class="screen-section">
-                <div class="categories">
-                    <button class="category-btn active" data-category="all">Todos</button>
-                    <button class="category-btn" data-category="salgados">Salgados</button>
-                    <button class="category-btn" data-category="doces">Doces</button>
-                    <button class="category-btn" data-category="bebidas">Bebidas</button>
-                    <button class="category-btn" data-category="outros">Outros</button>
-                </div>
-
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Pesquisar item...">
-                </div>
-
-                <div class="seller-session">
-                    <label for="seller-name"><i class="fas fa-user"></i> Professor responsável pelo caixa</label>
-                    <input type="text" id="seller-name" placeholder="Ex.: Prof. Luís">
-                </div>
-
-                <div id="items-container" class="items-grid"></div>
-
-                <div class="summary">
-                    <div class="summary-header">
-                        <div class="total-container">
-                            <h2>Total Geral</h2>
-                            <div class="total-value">R$ <span id="total-value">0,00</span></div>
-                        </div>
-                        <div class="payment-methods">
-                            <button class="payment-btn active" data-method="cash" onclick="setPaymentMethod('cash')">
-                                <i class="fas fa-money-bill-wave"></i> Dinheiro
-                            </button>
-                            <button class="payment-btn" data-method="pix" onclick="setPaymentMethod('pix')">
-                                <i class="fas fa-qrcode"></i> PIX
-                            </button>
-                            <button class="payment-btn" data-method="card" onclick="setPaymentMethod('card')">
-                                <i class="fas fa-credit-card"></i> Cartão (+5%)
-                            </button>
-                        </div>
-                    </div>
-                    <div class="summary-details">
-                        <div id="items-count">0 itens</div>
-                        <button class="reset-btn" onclick="resetAll()">
-                            <i class="fas fa-trash-alt"></i> Limpar Tudo
-                        </button>
-                    </div>
-                </div>
-
-                <div class="order-summary">
-                    <h2><i class="fas fa-clipboard-list"></i> Resumo dos Pedidos</h2>
-                    <div id="order-items"></div>
-                    <div class="order-total">
-                        Total: R$ <span id="order-total-value">0,00</span>
-                        <span id="payment-method-display">(Dinheiro)</span>
-                    </div>
-
-                    <div id="cash-payment-box" class="cash-payment-box">
-                        <label for="amount-paid">Valor recebido em dinheiro</label>
-                        <input type="text" id="amount-paid" inputmode="decimal" placeholder="Ex.: 50,00">
-                        <div class="change-result">
-                            Troco: R$ <span id="change-value">0,00</span>
-                        </div>
-                        <div id="change-warning" class="change-warning neutral">Informe o valor recebido em dinheiro.</div>
-                    </div>
-
-                    <div class="sale-actions">
-                        <button class="launch-btn" onclick="launchSale()">
-                            <i class="fas fa-check-circle"></i> Lançar Venda
-                        </button>
-                        <button class="undo-sale-btn" onclick="undoLastSale()">
-                            <i class="fas fa-rotate-left"></i> Voltar Última Venda
-                        </button>
-                    </div>
-                </div>
-
-                <section id="cash-dashboard-section" class="dashboard-section">
-                    <button class="charts-toggle-btn" onclick="toggleChartsPanel()">
-                        <i class="fas fa-chart-column"></i> Ver Gráficos
+                <div class="payment-methods">
+                    <button class="payment-btn active" data-method="cash" onclick="setPaymentMethod('cash')">
+                        <i class="fas fa-money-bill-wave"></i> Dinheiro
                     </button>
-                </section>
-            </section>
+                    <button class="payment-btn" data-method="pix" onclick="setPaymentMethod('pix')">
+                        <i class="fas fa-qrcode"></i> PIX
+                    </button>
+                    <button class="payment-btn" data-method="card" onclick="setPaymentMethod('card')">
+                        <i class="fas fa-credit-card"></i> Cartão (+5%)
+                    </button>
+                </div>
+            </div>
+            <div class="summary-details">
+                <div id="items-count">0 itens</div>
+                <button class="reset-btn" onclick="resetAll()">
+                    <i class="fas fa-trash-alt"></i> Limpar Tudo
+                </button>
+            </div>
+        </div>
 
-            <section id="student-screen" class="screen-section hidden">
-                <div class="student-header-card">
+        <div class="order-summary">
+            <h2><i class="fas fa-clipboard-list"></i> Resumo dos Pedidos</h2>
+            <div id="order-items"></div>
+            <div class="order-total">
+                Total: R$ <span id="order-total-value">0,00</span>
+                <span id="payment-method-display">(Dinheiro)</span>
+            </div>
+
+            <div id="cash-payment-box" class="cash-payment-box">
+                <label for="amount-paid">Valor recebido em dinheiro</label>
+                <input type="text" id="amount-paid" inputmode="decimal" placeholder="Ex.: 50,00">
+                <div class="change-result">
+                    Troco: R$ <span id="change-value">0,00</span>
+                </div>
+                <div id="change-warning" class="change-warning neutral">Informe o valor recebido em dinheiro.</div>
+            </div>
+
+            <div class="sale-actions">
+                <button class="launch-btn" onclick="launchSale()">
+                    <i class="fas fa-check-circle"></i> Lançar Venda
+                </button>
+                <button class="undo-sale-btn" onclick="undoLastSale()">
+                    <i class="fas fa-rotate-left"></i> Voltar Última Venda
+                </button>
+            </div>
+        </div>
+
+        <section class="dashboard-section">
+            <button class="charts-toggle-btn" onclick="toggleChartsPanel()">
+                <i class="fas fa-chart-column"></i> Ver Gráficos
+            </button>
+
+            <div id="charts-panel" class="charts-panel hidden">
+                <div class="charts-header">
                     <div>
-                        <h2><i class="fas fa-utensils"></i> Painel dos Alunos</h2>
-                        <p id="student-scope-text">Acompanhe fichas vendidas, arrecadação e fichas já retiradas por item da turma.</p>
+                        <h2><i class="fas fa-chart-pie"></i> Resumo das Vendas</h2>
+                        <p id="charts-source">Os dados serão carregados ao abrir o painel.</p>
                     </div>
-                    <button type="button" class="refresh-student-btn" onclick="loadStudentPanel()">
+                    <button class="refresh-charts-btn" onclick="loadSalesDashboard()">
                         <i class="fas fa-rotate"></i> Atualizar
                     </button>
                 </div>
-                <div id="student-status" class="charts-status neutral">Clique em atualizar para carregar vendas, arrecadação e retiradas.</div>
-                <div id="student-items-container" class="student-items-grid"></div>
-            </section>
 
-            <section id="charts-screen" class="screen-section hidden">
-                <div id="charts-panel" class="charts-panel">
-                    <div class="charts-header">
-                        <div>
-                            <h2><i class="fas fa-chart-pie"></i> Resumo das Vendas</h2>
-                            <p id="charts-source">Os dados serão carregados ao abrir o painel.</p>
-                        </div>
-                        <button class="refresh-charts-btn" onclick="loadSalesDashboard()">
-                            <i class="fas fa-rotate"></i> Atualizar
-                        </button>
+                <div id="charts-status" class="charts-status neutral">Clique em atualizar para consultar os lançamentos.</div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span>Total arrecadado</span>
+                        <strong>R$ <span id="kpi-total-revenue">0,00</span></strong>
                     </div>
-
-                    <div id="charts-status" class="charts-status neutral">Clique em atualizar para consultar os lançamentos.</div>
-
-                    <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <span>Total arrecadado</span>
-                            <strong>R$ <span id="kpi-total-revenue">0,00</span></strong>
-                        </div>
-                        <div class="kpi-card">
-                            <span>Vendas lançadas</span>
-                            <strong><span id="kpi-total-sales">0</span></strong>
-                        </div>
-                        <div class="kpi-card">
-                            <span>Itens vendidos</span>
-                            <strong><span id="kpi-total-items">0</span></strong>
-                        </div>
+                    <div class="kpi-card">
+                        <span>Vendas lançadas</span>
+                        <strong><span id="kpi-total-sales">0</span></strong>
                     </div>
-
-                    <div class="charts-grid">
-                        <div class="chart-card">
-                            <h3>Arrecadação por pagamento</h3>
-                            <div id="payment-revenue-chart" class="bar-chart"></div>
-                        </div>
-
-                        <div class="chart-card">
-                            <h3>Quantidade de vendas por pagamento</h3>
-                            <div id="payment-count-chart" class="bar-chart"></div>
-                        </div>
-
-                        <div class="chart-card full-width">
-                            <h3>Quantidade vendida por item</h3>
-                            <div id="item-quantity-chart" class="bar-chart"></div>
-                        </div>
-
-                        <div class="chart-card full-width">
-                            <h3>Vendas por professor</h3>
-                            <div id="seller-sales-chart" class="bar-chart"></div>
-                        </div>
+                    <div class="kpi-card">
+                        <span>Itens vendidos</span>
+                        <strong><span id="kpi-total-items">0</span></strong>
                     </div>
                 </div>
-            </section>
 
-            <div class="watermark">Desenvolvido por Prof. Luis Schons</div>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Arrecadação por pagamento</h3>
+                        <div id="payment-revenue-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Quantidade de vendas por pagamento</h3>
+                        <div id="payment-count-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card full-width">
+                        <h3>Quantidade vendida por item</h3>
+                        <div id="item-quantity-chart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-card full-width">
+                        <h3>Vendas por professor</h3>
+                        <div id="seller-sales-chart" class="bar-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="watermark">
+                Desenvolvido por Prof. Luis Schons
+            </div>
         </main>
+
     </div>
 
     <script src="src/script.js"></script>

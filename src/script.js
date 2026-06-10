@@ -1,55 +1,27 @@
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-uj-Ak_-171M-Lyd86YI3YiqoZ5ibbdgFWS0H8_wcY6JwB3Z89Q/exec"; // URL do Web App do Google Apps Script para registrar as vendas em TXT no Google Drive.
 
 const items = [
     // Salgados
-    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png", fichaLimit: 200, ownerGroup: "3º de Mineração" },
-    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png", fichaLimit: 200, ownerGroup: "3º de Informática" },
-    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha.", fichaLimit: 140, ownerGroup: "2º de Mineração" },
-    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha.", fichaLimit: 130, ownerGroup: "2º de Mineração" },
-    { name: "Pipoca Doce/Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-doce.png", fichaLimit: 150, ownerGroup: "2º de Informática" },
-    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", fichaLimit: 50, ownerGroup: "2º de Informática" },
-    { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", fichaLimit: 70, ownerGroup: "2º de Informática" },
+    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
+    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha." },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha." },
+    { name: "Milho", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png" },
+    { name: "Pipoca Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png" },
 
     // Doces
-    { name: "Arroz Doce", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "arroz-doce.png", fichaLimit: null, ownerGroup: "2º de Informática" },
-    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png", fichaLimit: 200, ownerGroup: "1º de Informática" },
-    { name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", fichaLimit: 80, ownerGroup: "1º de Desenvolvimento de Sistemas" },
+    { name: "Pipoca Doce", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "pipoca-doce.png" },
+    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png" },
+    { name: "Arroz Doce", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "arroz-doce.png" },
+    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
+    { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
 
     // Bebidas
-    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", fichaLimit: 48, ownerGroup: "3º anos - compartilhado" },
-    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", fichaLimit: 12, ownerGroup: "3º anos - compartilhado" },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", fichaLimit: 200, ownerGroup: "3º anos - compartilhado" },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", fichaLimit: 15, ownerGroup: "3º anos - compartilhado" }
+    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png" },
+    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png" },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png" },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png" }
 ];
-
-const THIRD_YEAR_SHARED_ITEMS = ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"];
-
-const FALLBACK_STUDENT_GROUPS = {
-    terceiroMineracao: {
-        label: "3º de Mineração",
-        allowedItems: ["Caldo (Frango/Feijão)", ...THIRD_YEAR_SHARED_ITEMS]
-    },
-    terceiroInformatica: {
-        label: "3º de Informática",
-        allowedItems: ["Pastel", ...THIRD_YEAR_SHARED_ITEMS]
-    },
-    segundoMineracao: {
-        label: "2º de Mineração",
-        allowedItems: ["Cachorro Quente Tradicional", "Cachorro Quente Completo"]
-    },
-    segundoInformatica: {
-        label: "2º de Informática",
-        allowedItems: ["Pipoca Doce/Salgada", "Pipoca de Leite Ninho", "Milho Cozido", "Arroz Doce"]
-    },
-    primeiroInformatica: {
-        label: "1º de Informática",
-        allowedItems: ["Maçã do Amor"]
-    },
-    primeiroDs: {
-        label: "1º de Desenvolvimento de Sistemas",
-        allowedItems: ["Canjica"]
-    }
-};
 
 let quantities = {};
 items.forEach(item => {
@@ -63,239 +35,76 @@ let amountPaid = 0;
 let saleInProgress = false;
 let undoInProgress = false;
 let chartsInProgress = false;
-let studentActionInProgress = false;
-let currentSession = null;
-let itemStatusByName = {};
-let ticketStatusInProgress = false;
 
 const STORAGE_KEYS = {
-    sales: "festaJuninaSales",
-    accessSession: "festaJuninaAccessSessionV4",
-    deviceId: "festaJuninaDeviceId"
+    sales: "festaJuninaSales"
 };
 
 const COOKIE_KEYS = {
-    seller: "festaJuninaSellerName"
+    seller: "festaJuninaSellerName",
+    access: "festaJuninaAccessOk"
 };
 
+const SITE_PASSWORD = "quadrilhaif2026";
 const SELLER_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
-const ACCESS_DURATION_DAYS = 7;
+const ACCESS_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
 
 document.addEventListener("DOMContentLoaded", () => {
-    clearLegacyAccessSessions();
-    initializeDeviceCode();
     setupAccessGate();
-    setupEventListeners();
     renderItems();
+    setupEventListeners();
     updatePaymentMethodDisplay();
     updateOrderSummary();
     restoreSellerName();
-
-    const savedSession = getSavedAccessSession();
-    if (savedSession) {
-        setAppAccess(savedSession);
-    } else {
-        setAppLocked();
-    }
+    setAppAccess(hasValidAccessCookie());
 });
 
-function clearLegacyAccessSessions() {
-    [
-        "festaJuninaAccessSession",
-        "festaJuninaAccessSessionV1",
-        "festaJuninaAccessSessionV2",
-        "festaJuninaAccessSessionV3"
-    ].forEach(key => localStorage.removeItem(key));
-}
 
 function setupAccessGate() {
     const form = document.getElementById("password-form");
     const passwordInput = document.getElementById("site-password");
     const errorBox = document.getElementById("password-error");
-    const deviceBox = document.getElementById("device-code-box");
-
-    if (deviceBox) {
-        deviceBox.textContent = `Código do dispositivo: ${getDeviceId()}`;
-    }
 
     if (!form || !passwordInput) return;
 
-    form.addEventListener("submit", async (event) => {
+    form.addEventListener("submit", (event) => {
         event.preventDefault();
-        const accessKey = passwordInput.value.trim();
 
-        if (!accessKey) {
-            if (errorBox) errorBox.textContent = "Informe a chave de acesso.";
-            return;
-        }
-
-        const submitButton = form.querySelector("button[type='submit']");
-        if (submitButton) submitButton.disabled = true;
-        if (errorBox) errorBox.textContent = "Validando chave...";
-
-        try {
-            const response = await jsonpRequest({
-                action: "login",
-                accessKey,
-                deviceId: getDeviceId(),
-                deviceInfo: JSON.stringify(getDeviceInfo())
-            });
-
-            if (!response.ok) {
-                throw new Error(response.message || "Chave inválida.");
-            }
-
-            const session = {
-                token: response.sessionToken,
-                role: response.role,
-                roleLabel: response.roleLabel,
-                studentGroup: response.studentGroup || "",
-                studentGroupLabel: response.studentGroupLabel || "",
-                allowedItems: Array.isArray(response.allowedItems) ? response.allowedItems : [],
-                deviceId: getDeviceId(),
-                expiresAt: response.expiresAt || new Date(Date.now() + ACCESS_DURATION_DAYS * 24 * 60 * 60 * 1000).toISOString()
-            };
-
-            saveAccessSession(session);
+        if (passwordInput.value === SITE_PASSWORD) {
+            setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
             passwordInput.value = "";
             if (errorBox) errorBox.textContent = "";
-            setAppAccess(session);
-        } catch (error) {
-            console.error(error);
-            if (errorBox) errorBox.textContent = error.message || "Não foi possível validar a chave.";
+            setAppAccess(true);
+            document.getElementById("seller-name")?.focus();
+        } else {
+            if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
             passwordInput.select();
-        } finally {
-            if (submitButton) submitButton.disabled = false;
         }
     });
 }
 
-function setAppLocked() {
-    currentSession = null;
-    document.body.classList.add("locked");
-    document.getElementById("access-gate")?.classList.remove("hidden");
-    document.getElementById("app-root")?.classList.add("app-hidden");
-    setTimeout(() => document.getElementById("site-password")?.focus(), 50);
+function hasValidAccessCookie() {
+    return getCookie(COOKIE_KEYS.access) === "ok";
 }
 
-function setAppAccess(session) {
-    currentSession = session;
-    document.body.classList.remove("locked");
-    document.getElementById("access-gate")?.classList.add("hidden");
-    document.getElementById("app-root")?.classList.remove("app-hidden");
+function setAppAccess(isAllowed) {
+    const gate = document.getElementById("access-gate");
+    const appRoot = document.getElementById("app-root");
 
-    const roleLabel = document.getElementById("session-role-label");
-    if (roleLabel) roleLabel.textContent = getDisplayRoleLabel(session);
+    document.body.classList.toggle("locked", !isAllowed);
 
-    const deviceLabel = document.getElementById("session-device-code");
-    if (deviceLabel) deviceLabel.textContent = `Dispositivo: ${session.deviceId || getDeviceId()}`;
-
-    const adminNav = document.getElementById("admin-nav");
-    if (adminNav) adminNav.classList.toggle("hidden", session.role !== "admin");
-
-    if (session.role === "aluno") {
-        showOnlyScreen("student");
-        loadStudentPanel();
-        return;
+    if (gate) {
+        gate.classList.toggle("hidden", isAllowed);
+        gate.setAttribute("aria-hidden", String(isAllowed));
     }
 
-    showOnlyScreen("cash");
-    document.getElementById("seller-name")?.focus();
-    loadTicketStatusForCash();
-}
-
-function logoutAccess() {
-    if (!confirm("Deseja sair deste dispositivo? Será necessário informar a chave novamente.")) return;
-    localStorage.removeItem(STORAGE_KEYS.accessSession);
-    clearLegacyAccessSessions();
-    setAppLocked();
-}
-
-function getDisplayRoleLabel(session) {
-    if (!session) return "Perfil";
-    if (session.role === "aluno") return `Alunos - ${session.studentGroupLabel || session.roleLabel || "Itens"}`;
-    return session.roleLabel || session.role || "Perfil";
-}
-
-function getSavedAccessSession() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEYS.accessSession);
-        if (!raw) return null;
-
-        const session = JSON.parse(raw);
-        if (!session || !session.token || !session.role || !session.expiresAt) return null;
-
-        if (new Date(session.expiresAt).getTime() <= Date.now()) {
-            localStorage.removeItem(STORAGE_KEYS.accessSession);
-            return null;
-        }
-
-        return session;
-    } catch (error) {
-        console.error(error);
-        localStorage.removeItem(STORAGE_KEYS.accessSession);
-        return null;
-    }
-}
-
-function saveAccessSession(session) {
-    localStorage.setItem(STORAGE_KEYS.accessSession, JSON.stringify(session));
-}
-
-function requireSession() {
-    const session = currentSession || getSavedAccessSession();
-    if (!session) {
-        setAppLocked();
-        throw new Error("Sessão expirada. Informe a chave novamente.");
-    }
-    currentSession = session;
-    return session;
-}
-
-function authParams(extra = {}) {
-    const session = requireSession();
-    return {
-        token: session.token,
-        deviceId: getDeviceId(),
-        ...extra
-    };
-}
-
-function initializeDeviceCode() {
-    getDeviceId();
-}
-
-function getDeviceId() {
-    let deviceId = localStorage.getItem(STORAGE_KEYS.deviceId);
-
-    // Versões anteriores geravam códigos iniciando com "DEV-".
-    // Isso confundia visualmente com "Desenvolvimento de Sistemas".
-    // Nesta versão, se o aparelho ainda tiver um código antigo, geramos um novo código "IF-".
-    if (!deviceId || String(deviceId).startsWith("DEV-")) {
-        deviceId = createShortDeviceId();
-        localStorage.setItem(STORAGE_KEYS.deviceId, deviceId);
+    if (appRoot) {
+        appRoot.setAttribute("aria-hidden", String(!isAllowed));
     }
 
-    return deviceId;
-}
-
-function createShortDeviceId() {
-    const randomPart = window.crypto && crypto.randomUUID
-        ? crypto.randomUUID().split("-")[0]
-        : Math.random().toString(36).substring(2, 10);
-    return `IF-${randomPart.toUpperCase()}`;
-}
-
-function getDeviceInfo() {
-    return {
-        deviceId: getDeviceId(),
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        screen: `${window.screen.width}x${window.screen.height}`,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-        datetimeIso: new Date().toISOString()
-    };
+    if (!isAllowed) {
+        setTimeout(() => document.getElementById("site-password")?.focus(), 50);
+    }
 }
 
 function setupEventListeners() {
@@ -308,13 +117,10 @@ function setupEventListeners() {
         });
     });
 
-    const searchInput = document.getElementById("search-input");
-    if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            searchTerm = e.target.value.toLowerCase();
-            renderItems();
-        });
-    }
+    document.getElementById("search-input").addEventListener("input", (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        renderItems();
+    });
 
     const sellerInput = document.getElementById("seller-name");
     if (sellerInput) {
@@ -335,28 +141,8 @@ function setupEventListeners() {
 function restoreSellerName() {
     const sellerInput = document.getElementById("seller-name");
     if (!sellerInput) return;
+
     sellerInput.value = getCookie(COOKIE_KEYS.seller) || "";
-}
-
-function switchAdminView(view) {
-    if (!currentSession || currentSession.role !== "admin") return;
-    showOnlyScreen(view);
-    document.querySelectorAll(".admin-tab-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.view === view);
-    });
-
-    if (view === "student") loadStudentPanel();
-    if (view === "charts") loadSalesDashboard();
-}
-
-function showOnlyScreen(screen) {
-    const cash = document.getElementById("cash-screen");
-    const student = document.getElementById("student-screen");
-    const charts = document.getElementById("charts-screen");
-
-    cash?.classList.toggle("hidden", screen !== "cash");
-    student?.classList.toggle("hidden", screen !== "student");
-    charts?.classList.toggle("hidden", screen !== "charts");
 }
 
 function setPaymentMethod(method) {
@@ -388,10 +174,14 @@ function updatePaymentMethodDisplay() {
 
 function getPaymentMethodLabel(method) {
     switch (method) {
-        case "cash": return "Dinheiro";
-        case "pix": return "PIX";
-        case "card": return "Cartão +5%";
-        default: return "Dinheiro";
+        case "cash":
+            return "Dinheiro";
+        case "pix":
+            return "PIX";
+        case "card":
+            return "Cartão +5%";
+        default:
+            return "Dinheiro";
     }
 }
 
@@ -399,47 +189,8 @@ function getCurrentPrice(item) {
     return paymentMethod === "card" ? item.cardPrice : item.cashPrice;
 }
 
-
-async function loadTicketStatusForCash() {
-    const session = currentSession || getSavedAccessSession();
-    if (!session || !["caixa", "admin"].includes(session.role) || ticketStatusInProgress) return;
-
-    ticketStatusInProgress = true;
-    try {
-        const response = await jsonpRequest(authParams({ action: "studentStatus", scope: "all" }));
-        if (!response.ok) throw new Error(response.message || "Não foi possível carregar fichas restantes.");
-
-        itemStatusByName = {};
-        (response.items || []).forEach(item => {
-            itemStatusByName[normalizeText(item.name)] = item;
-        });
-        renderItems();
-    } catch (error) {
-        console.warn("Não foi possível atualizar fichas restantes:", error);
-    } finally {
-        ticketStatusInProgress = false;
-    }
-}
-
-function renderItemFichaInfo(item) {
-    if (item.fichaLimit === null || item.fichaLimit === undefined) return "";
-
-    const fichaLimit = Number(item.fichaLimit) || 0;
-    const status = itemStatusByName[normalizeText(item.name)] || {};
-    const sold = Number(status.sold) || 0;
-    const remaining = fichaLimit - sold;
-
-    if (remaining >= 0) {
-        return `<div class="item-fichas">Fichas vendidas: ${sold} | Restam: ${remaining} de ${fichaLimit}</div>`;
-    }
-
-    return `<div class="item-fichas item-fichas-warning">Fichas vendidas: ${sold} | Excedeu ${Math.abs(remaining)} ficha(s) da previsão de ${fichaLimit}</div>`;
-}
-
 function renderItems() {
     const container = document.getElementById("items-container");
-    if (!container) return;
-
     container.innerHTML = "";
 
     const generalTotal = getOrderTotal();
@@ -464,33 +215,33 @@ function renderItems() {
         const price = getCurrentPrice(item);
         const quantity = quantities[item.name] || 0;
         const itemTotal = quantity * price;
-        const imagePath = item.image ? `images/${item.image}` : "images/default.png";
 
         const itemElement = document.createElement("div");
         itemElement.className = `item-card category-${item.category}`;
+
+        const imagePath = item.image ? `images/${item.image}` : "images/default.png";
+
         itemElement.innerHTML = `
             <div class="item-header">
                 <div class="item-name-container">
-                    <div class="item-name">${escapeHtml(item.name)}</div>
+                    <div class="item-name">${item.name}</div>
                     <div class="item-price">R$ ${formatCurrency(price)}</div>
                 </div>
-                <img src="${imagePath}" alt="${escapeHtml(item.name)}" class="item-image" onerror="this.src='images/default.png'">
+                <img src="${imagePath}" alt="${item.name}" class="item-image" onerror="this.src='images/default.png'">
             </div>
             <div class="item-body">
                 <div class="price-display">
                     <span class="cash-price">Dinheiro/PIX: R$ ${formatCurrency(item.cashPrice)}</span>
                     <span class="card-price">Cartão: R$ ${formatCurrency(item.cardPrice)}</span>
                 </div>
-                ${item.ownerGroup ? `<div class="item-owner">Responsável: ${escapeHtml(item.ownerGroup)}</div>` : ""}
-                ${renderItemFichaInfo(item)}
                 ${item.description ? `<div class="item-description">${escapeHtml(item.description)}</div>` : ""}
                 <div class="item-controls">
                     <div class="quantity-control">
-                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, -1)" aria-label="Remover ${escapeHtml(item.name)}">
+                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, -1)">
                             <i class="fas fa-minus"></i>
                         </button>
                         <div class="quantity-value">${quantity}</div>
-                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, 1)" aria-label="Adicionar ${escapeHtml(item.name)}">
+                        <button class="quantity-btn" onclick="changeQuantity(${itemIndex}, 1)">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -509,8 +260,8 @@ function renderItems() {
 
 function changeQuantity(itemIndex, change) {
     const item = items[itemIndex];
-    if (!item) return;
-    quantities[item.name] = Math.max((quantities[item.name] || 0) + change, 0);
+    quantities[item.name] += change;
+    if (quantities[item.name] < 0) quantities[item.name] = 0;
     renderItems();
 }
 
@@ -535,17 +286,14 @@ function clearCurrentSale() {
 }
 
 function updateSummary(total, count) {
-    const totalValue = document.getElementById("total-value");
-    const itemsCount = document.getElementById("items-count");
-    if (totalValue) totalValue.textContent = formatCurrency(total);
-    if (itemsCount) itemsCount.textContent = `${count} ${count === 1 ? "item" : "itens"}`;
+    document.getElementById("total-value").textContent = formatCurrency(total);
+    document.getElementById("items-count").textContent = `${count} ${count === 1 ? "item" : "itens"}`;
 }
 
 function updateOrderSummary() {
     const orderItemsContainer = document.getElementById("order-items");
-    if (!orderItemsContainer) return;
-
     orderItemsContainer.innerHTML = "";
+
     let orderTotal = 0;
     let hasItems = false;
 
@@ -561,7 +309,7 @@ function updateOrderSummary() {
             itemElement.className = "order-item";
             itemElement.innerHTML = `
                 <div class="order-item-main">
-                    <span class="order-item-name">${escapeHtml(item.name)}</span>
+                    <span class="order-item-name">${item.name}</span>
                     <span class="order-item-quantity">${quantity}x</span>
                 </div>
                 <div class="order-item-actions">
@@ -574,12 +322,12 @@ function updateOrderSummary() {
                     <div class="order-item-price">R$ ${formatCurrency(itemTotal)}</div>
                 </div>
             `;
+
             orderItemsContainer.appendChild(itemElement);
         }
     });
 
-    const orderTotalValue = document.getElementById("order-total-value");
-    if (orderTotalValue) orderTotalValue.textContent = formatCurrency(orderTotal);
+    document.getElementById("order-total-value").textContent = formatCurrency(orderTotal);
 
     if (!hasItems) {
         orderItemsContainer.innerHTML = '<div class="no-items">Nenhum item adicionado</div>';
@@ -651,7 +399,6 @@ function getSellerName() {
 }
 
 function buildSaleRecord() {
-    const session = requireSession();
     const total = getOrderTotal();
     const paid = paymentMethod === "cash" ? amountPaid : total;
     const change = paymentMethod === "cash" ? Math.max(paid - total, 0) : 0;
@@ -666,11 +413,7 @@ function buildSaleRecord() {
         total,
         amountPaid: paid,
         change,
-        items: getSelectedItems(),
-        deviceId: getDeviceId(),
-        deviceInfo: getDeviceInfo(),
-        accessRole: session.role,
-        accessRoleLabel: getDisplayRoleLabel(session)
+        items: getSelectedItems()
     };
 }
 
@@ -705,22 +448,19 @@ async function launchSale() {
     setSaleButtonsDisabled(true);
 
     try {
-        const response = await jsonpRequest(authParams({
-            action: "launch",
-            sale: JSON.stringify(sale)
-        }));
-
-        if (!response.ok) {
-            throw new Error(response.message || "A venda não foi registrada no backend.");
-        }
         saveSaleLocally(sale);
-        alert(`Venda lançada no registro central.
-Código do dispositivo: ${getDeviceId()}`);
+
+        if (isBackendConfigured()) {
+            await sendSaleToBackend(sale);
+            alert("Venda lançada. O registro foi enviado para o TXT central e também ficou salvo como backup local neste aparelho.");
+        } else {
+            alert("Venda lançada apenas no backup local deste aparelho. Para gravar no TXT central, configure BACKEND_URL no arquivo src/script.js.");
+        }
+
         clearCurrentSale();
-        loadTicketStatusForCash();
     } catch (error) {
         console.error(error);
-        alert(error.message || "Erro ao lançar a venda. Verifique internet, chave de acesso e Apps Script.");
+        alert("A venda ficou salva no backup local, mas ocorreu erro ao enviar para o registro central. Verifique internet e configuração do Apps Script.");
     } finally {
         saleInProgress = false;
         setSaleButtonsDisabled(false);
@@ -747,24 +487,29 @@ async function undoLastSale() {
     setSaleButtonsDisabled(true);
 
     try {
-        const response = await jsonpRequest(authParams({
-            action: "undo",
-            sellerName
-        }));
+        let sale = null;
 
-        if (!response.ok) {
-            alert(response.message || "Não encontrei venda ativa para esse professor.");
-            return;
+        if (isBackendConfigured()) {
+            const response = await requestUndoFromBackend(sellerName);
+            if (!response.ok) {
+                alert(response.message || "Não encontrei venda ativa para esse professor.");
+                return;
+            }
+            sale = response.sale;
+            removeLocalSaleById(sale.saleId);
+        } else {
+            sale = removeLastLocalSaleBySeller(sellerName);
+            if (!sale) {
+                alert("Não encontrei venda local para esse professor neste aparelho.");
+                return;
+            }
         }
 
-        const sale = response.sale;
-        removeLocalSaleById(sale.saleId);
         restoreSaleForEditing(sale);
-        loadTicketStatusForCash();
         alert("Última venda recuperada para edição. Corrija o pedido e clique em Lançar Venda novamente.");
     } catch (error) {
         console.error(error);
-        alert(error.message || "Não foi possível voltar a última venda. Verifique a internet e a URL do Apps Script.");
+        alert("Não foi possível voltar a última venda. Verifique a internet e a URL do Apps Script.");
     } finally {
         undoInProgress = false;
         setSaleButtonsDisabled(false);
@@ -817,16 +562,57 @@ function removeLocalSaleById(saleId) {
     localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(filteredSales));
 }
 
-async function toggleChartsPanel() {
-    const chartsScreen = document.getElementById("charts-screen");
-    if (!chartsScreen) return;
+function removeLastLocalSaleBySeller(sellerName) {
+    const sales = getLocalSales();
+    const normalizedSeller = normalizeText(sellerName);
 
-    const willShow = chartsScreen.classList.contains("hidden");
-    chartsScreen.classList.toggle("hidden");
+    for (let i = sales.length - 1; i >= 0; i--) {
+        if (normalizeText(sales[i].sellerName) === normalizedSeller) {
+            const [sale] = sales.splice(i, 1);
+            localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(sales));
+            return sale;
+        }
+    }
+
+    return null;
+}
+
+async function sendSaleToBackend(sale) {
+    await fetch(BACKEND_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+            action: "launch",
+            sale
+        })
+    });
+}
+
+function requestUndoFromBackend(sellerName) {
+    return jsonpRequest({
+        action: "undo",
+        sellerName
+    });
+}
+
+function requestSalesSummaryFromBackend() {
+    return jsonpRequest({
+        action: "summary"
+    });
+}
+
+async function toggleChartsPanel() {
+    const panel = document.getElementById("charts-panel");
+    if (!panel) return;
+
+    const willShow = panel.classList.contains("hidden");
+    panel.classList.toggle("hidden");
 
     if (willShow) {
         await loadSalesDashboard();
-        chartsScreen.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 }
 
@@ -834,22 +620,32 @@ async function loadSalesDashboard() {
     if (chartsInProgress) return;
 
     chartsInProgress = true;
-    setChartsStatus("Carregando resumo das vendas...", "neutral");
+    setChartsStatus("Carregando dados das vendas...", "neutral");
     setChartsRefreshDisabled(true);
 
     try {
-        const response = await jsonpRequest(authParams({ action: "summary" }));
-        if (!response.ok) {
-            throw new Error(response.message || "Não foi possível carregar o resumo.");
+        let summary = null;
+        let sourceLabel = "";
+
+        if (isBackendConfigured()) {
+            const response = await requestSalesSummaryFromBackend();
+            if (!response.ok) {
+                throw new Error(response.message || "Não foi possível consultar o resumo central.");
+            }
+            summary = normalizeDashboardSummary(response.summary);
+            sourceLabel = "Dados carregados do TXT central no Google Drive.";
+        } else {
+            summary = buildDashboardSummaryFromSales(getLocalSales());
+            sourceLabel = "Dados carregados apenas do backup local deste aparelho. Configure BACKEND_URL para visualizar o caixa geral.";
         }
 
-        renderSalesDashboard(response.summary, "Dados carregados do TXT central no Google Drive.");
+        renderSalesDashboard(summary, sourceLabel);
         setChartsStatus("Gráficos atualizados.", "success");
     } catch (error) {
         console.error(error);
         const fallbackSummary = buildDashboardSummaryFromSales(getLocalSales());
         renderSalesDashboard(fallbackSummary, "Não foi possível consultar o TXT central. Exibindo apenas o backup local deste aparelho.");
-        setChartsStatus(error.message || "Erro ao consultar o registro central.", "danger");
+        setChartsStatus("Erro ao consultar o registro central. Verifique internet, URL do Apps Script e implantação do Web App.", "danger");
     } finally {
         chartsInProgress = false;
         setChartsRefreshDisabled(false);
@@ -918,194 +714,6 @@ function renderSalesDashboard(summary, sourceLabel) {
     });
 }
 
-async function loadStudentPanel() {
-    if (studentActionInProgress) return;
-
-    studentActionInProgress = true;
-    setStudentStatus("Carregando fichas vendidas, arrecadação e retiradas...", "neutral");
-    setStudentButtonsDisabled(true);
-
-    try {
-        const response = await jsonpRequest(authParams({ action: "studentStatus" }));
-        if (!response.ok) {
-            throw new Error(response.message || "Não foi possível carregar os itens.");
-        }
-
-        renderStudentPanel(response);
-        setStudentStatus("Painel dos alunos atualizado.", "success");
-    } catch (error) {
-        console.error(error);
-        setStudentStatus(error.message || "Erro ao carregar o painel dos alunos.", "danger");
-    } finally {
-        studentActionInProgress = false;
-        setStudentButtonsDisabled(false);
-    }
-}
-
-function renderStudentPanel(response) {
-    const container = document.getElementById("student-items-container");
-    const scopeText = document.getElementById("student-scope-text");
-    if (!container) return;
-
-    const session = requireSession();
-    const panelItems = Array.isArray(response.items) ? response.items : [];
-    const title = session.role === "admin"
-        ? "Admin: visualização de todos os itens, arrecadação e retiradas."
-        : `Itens liberados para ${response.studentGroupLabel || session.studentGroupLabel || "este grupo"}.`;
-
-    if (scopeText) {
-        scopeText.textContent = `${title} Acompanhe fichas vendidas, valor arrecadado e fichas já retiradas.`;
-    }
-
-    if (panelItems.length === 0) {
-        container.innerHTML = '<div class="no-items">Nenhum item configurado para este grupo.</div>';
-        return;
-    }
-
-    container.innerHTML = panelItems.map((item, index) => {
-        const sold = Number(item.sold) || 0;
-        const grossSold = Number(item.grossSold ?? sold) || 0;
-        const adminRemoved = Number(item.adminRemoved) || 0;
-        const fulfilled = Number(item.fulfilled) || 0;
-        const pending = Math.max(Number(item.pending ?? (sold - fulfilled)) || 0, 0);
-        const revenue = Number(item.revenue) || 0;
-        const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
-        const remainingToSell = fichaLimit === null ? null : fichaLimit - sold;
-        const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
-        const fulfilledPercent = sold > 0 ? Math.min((fulfilled / sold) * 100, 100) : 0;
-
-        const adminControls = session.role === "admin" ? `
-            <div class="student-action-row admin-only-action">
-                <input id="admin-remove-qty-${index}" type="number" min="1" max="${Math.max(sold, 1)}" value="${sold > 0 ? 1 : 0}" inputmode="numeric" ${sold <= 0 ? "disabled" : ""}>
-                <button type="button" class="admin-remove-item-btn" onclick="adminRemoveItem('${escapeJs(item.name)}', ${index})" ${sold <= 0 ? "disabled" : ""}>
-                    <i class="fas fa-triangle-exclamation"></i> Remover venda
-                </button>
-            </div>
-        ` : "";
-
-        const adminInfo = session.role === "admin" && adminRemoved > 0 ? `
-            <div><span>Vendas brutas</span><strong>${grossSold}</strong></div>
-            <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
-        ` : "";
-
-        const remainingLabel = remainingToSell === null
-            ? "—"
-            : (remainingToSell >= 0 ? remainingToSell : `+${Math.abs(remainingToSell)}`);
-
-        return `
-            <article class="student-item-card">
-                <div class="student-item-title">
-                    <h3>${escapeHtml(item.name)}</h3>
-                    <span>${escapeHtml(item.ownerGroup || item.category || "")}</span>
-                </div>
-
-                <div class="student-chart-block">
-                    <div class="student-progress-label">
-                        <span>Fichas vendidas</span>
-                        <strong>${sold}${fichaLimit === null ? "" : ` / ${fichaLimit}`}</strong>
-                    </div>
-                    <div class="student-progress-track" aria-label="Progresso de fichas vendidas">
-                        <div class="student-progress-fill sold-fill" style="width: ${soldPercent}%"></div>
-                    </div>
-
-                    <div class="student-progress-label">
-                        <span>Fichas retiradas</span>
-                        <strong>${fulfilled} / ${sold}</strong>
-                    </div>
-                    <div class="student-progress-track" aria-label="Progresso de fichas retiradas">
-                        <div class="student-progress-fill fulfilled-fill" style="width: ${fulfilledPercent}%"></div>
-                    </div>
-                </div>
-
-                <div class="student-counters">
-                    <div class="sold-counter"><span>Vendidas</span><strong>${sold}</strong></div>
-                    <div><span>Arrecadado</span><strong>R$ ${formatCurrency(revenue)}</strong></div>
-                    <div><span>Retiradas</span><strong>${fulfilled}</strong></div>
-                    <div class="pending-counter"><span>A retirar</span><strong>${pending}</strong></div>
-                    <div><span>Fichas totais</span><strong>${fichaLimit === null ? "—" : fichaLimit}</strong></div>
-                    <div><span>Ainda não vendidas</span><strong>${remainingLabel}</strong></div>
-                    ${adminInfo}
-                </div>
-
-                <div class="student-action-row">
-                    <input id="fulfill-qty-${index}" type="number" min="1" max="${Math.max(pending, 1)}" value="${pending > 0 ? 1 : 0}" inputmode="numeric" ${pending <= 0 ? "disabled" : ""}>
-                    <button type="button" class="mark-done-btn" onclick="markItemFulfilled('${escapeJs(item.name)}', ${index})" ${pending <= 0 ? "disabled" : ""}>
-                        <i class="fas fa-check"></i> Registrar retirada
-                    </button>
-                </div>
-                ${adminControls}
-            </article>
-        `;
-    }).join("");
-}
-async function markItemFulfilled(itemName, index) {
-    const input = document.getElementById(`fulfill-qty-${index}`);
-    const quantity = Math.max(Number(input?.value) || 0, 0);
-
-    if (quantity <= 0) {
-        alert("Informe a quantidade retirada no campo ao lado.");
-        return;
-    }
-
-    studentActionInProgress = true;
-    setStudentButtonsDisabled(true);
-    setStudentStatus("Registrando ficha retirada...", "neutral");
-
-    try {
-        const response = await jsonpRequest(authParams({
-            action: "fulfillItem",
-            itemName,
-            quantity: String(quantity)
-        }));
-
-        if (!response.ok) throw new Error(response.message || "Não foi possível registrar a retirada.");
-        await loadStudentPanel();
-    } catch (error) {
-        console.error(error);
-        setStudentStatus(error.message || "Erro ao registrar ficha retirada.", "danger");
-    } finally {
-        studentActionInProgress = false;
-        setStudentButtonsDisabled(false);
-    }
-}
-async function adminRemoveItem(itemName, index) {
-    const session = requireSession();
-    if (session.role !== "admin") return;
-
-    const input = document.getElementById(`admin-remove-qty-${index}`) || document.getElementById(`fulfill-qty-${index}`);
-    const quantity = Math.max(Number(input?.value) || 0, 0);
-
-    if (quantity <= 0) {
-        alert("Informe a quantidade a remover no campo ao lado.");
-        return;
-    }
-
-    const reason = prompt(`Motivo para remover ${quantity} unidade(s) de ${itemName} do total vendido:`, "Ajuste manual do admin");
-    if (reason === null) return;
-
-    studentActionInProgress = true;
-    setStudentButtonsDisabled(true);
-    setStudentStatus("Registrando ajuste do admin...", "neutral");
-
-    try {
-        const response = await jsonpRequest(authParams({
-            action: "adminRemoveItem",
-            itemName,
-            quantity: String(quantity),
-            reason: reason || "Ajuste manual do admin"
-        }));
-
-        if (!response.ok) throw new Error(response.message || "Não foi possível registrar o ajuste.");
-        await loadStudentPanel();
-    } catch (error) {
-        console.error(error);
-        setStudentStatus(error.message || "Erro ao registrar ajuste do admin.", "danger");
-    } finally {
-        studentActionInProgress = false;
-        setStudentButtonsDisabled(false);
-    }
-}
-
 function renderBarChart(containerId, data, options = {}) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -1156,7 +764,11 @@ function buildDashboardSummaryFromSales(sales) {
         summary.payments[paymentMethodKey].revenue += total;
 
         if (!sellerMap.has(sellerKey)) {
-            sellerMap.set(sellerKey, { name: sellerName, sales: 0, revenue: 0 });
+            sellerMap.set(sellerKey, {
+                name: sellerName,
+                sales: 0,
+                revenue: 0
+            });
         }
 
         const sellerData = sellerMap.get(sellerKey);
@@ -1172,7 +784,11 @@ function buildDashboardSummaryFromSales(sales) {
             summary.totalItems += quantity;
 
             if (!itemMap.has(itemKey)) {
-                itemMap.set(itemKey, { name: itemName, quantity: 0, revenue: 0 });
+                itemMap.set(itemKey, {
+                    name: itemName,
+                    quantity: 0,
+                    revenue: 0
+                });
             }
 
             const itemData = itemMap.get(itemKey);
@@ -1183,6 +799,7 @@ function buildDashboardSummaryFromSales(sales) {
 
     summary.items = Array.from(itemMap.values());
     summary.sellers = Array.from(sellerMap.values());
+
     return summary;
 }
 
@@ -1240,13 +857,7 @@ function normalizePaymentMethod(method) {
 function setChartsStatus(message, type = "neutral") {
     const status = document.getElementById("charts-status");
     if (!status) return;
-    status.textContent = message;
-    status.className = `charts-status ${type}`;
-}
 
-function setStudentStatus(message, type = "neutral") {
-    const status = document.getElementById("student-status");
-    if (!status) return;
     status.textContent = message;
     status.className = `charts-status ${type}`;
 }
@@ -1257,9 +868,51 @@ function setChartsRefreshDisabled(disabled) {
     });
 }
 
-function setStudentButtonsDisabled(disabled) {
-    document.querySelectorAll(".refresh-student-btn, .mark-done-btn, .admin-remove-item-btn").forEach(btn => {
-        btn.disabled = disabled;
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function jsonpRequest(params) {
+    return new Promise((resolve, reject) => {
+        const callbackName = `festaJuninaCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const url = new URL(BACKEND_URL);
+
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.set(key, value);
+        });
+        url.searchParams.set("callback", callbackName);
+
+        const script = document.createElement("script");
+        let timeoutId = null;
+
+        function cleanup() {
+            if (timeoutId) clearTimeout(timeoutId);
+            delete window[callbackName];
+            script.remove();
+        }
+
+        window[callbackName] = (data) => {
+            cleanup();
+            resolve(data);
+        };
+
+        script.onerror = () => {
+            cleanup();
+            reject(new Error("Erro ao consultar o Apps Script."));
+        };
+
+        timeoutId = setTimeout(() => {
+            cleanup();
+            reject(new Error("Tempo esgotado ao consultar o Apps Script."));
+        }, 12000);
+
+        script.src = url.toString();
+        document.body.appendChild(script);
     });
 }
 
@@ -1287,13 +940,19 @@ function getCookie(name) {
             return decodeURIComponent(current.substring(encodedName.length));
         }
     }
+
     return "";
+}
+
+function isBackendConfigured() {
+    return BACKEND_URL.trim() !== "";
 }
 
 function parseCurrencyInput(value) {
     const normalized = String(value || "")
         .replace(/[^0-9,.]/g, "")
         .replace(",", ".");
+
     return Number(normalized) || 0;
 }
 
@@ -1310,69 +969,9 @@ function normalizeText(value) {
 }
 
 function createSaleId() {
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    if (window.crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
     return `venda-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-}
-
-function escapeHtml(value) {
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function escapeJs(value) {
-    return String(value || "")
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/\n/g, " ")
-        .replace(/\r/g, " ");
-}
-
-function jsonpRequest(params) {
-    return new Promise((resolve, reject) => {
-        if (!BACKEND_URL || !BACKEND_URL.trim()) {
-            reject(new Error("BACKEND_URL não está configurado."));
-            return;
-        }
-
-        const callbackName = `festaJuninaCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-        const url = new URL(BACKEND_URL);
-
-        Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                url.searchParams.set(key, value);
-            }
-        });
-        url.searchParams.set("callback", callbackName);
-
-        const script = document.createElement("script");
-        let timeoutId = null;
-
-        function cleanup() {
-            if (timeoutId) clearTimeout(timeoutId);
-            delete window[callbackName];
-            script.remove();
-        }
-
-        window[callbackName] = (data) => {
-            cleanup();
-            resolve(data);
-        };
-
-        script.onerror = () => {
-            cleanup();
-            reject(new Error("Erro ao consultar o Apps Script."));
-        };
-
-        timeoutId = setTimeout(() => {
-            cleanup();
-            reject(new Error("Tempo esgotado ao consultar o Apps Script."));
-        }, 15000);
-
-        script.src = url.toString();
-        document.body.appendChild(script);
-    });
 }
