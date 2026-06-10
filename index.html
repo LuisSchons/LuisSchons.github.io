@@ -11,8 +11,8 @@
     <div id="access-gate" class="access-gate" role="dialog" aria-modal="true" aria-labelledby="password-title">
         <form id="password-form" class="access-card">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="access-logo">
-            <h2 id="password-title">Acesso ao Caixa</h2>
-            <p>Informe a senha para acessar a tela principal da venda.</p>
+            <h2 id="password-title">Acesso ao Sistema</h2>
+            <p>Informe a senha do professor/caixa ou a senha da sua turma.</p>
             <label for="site-password">Senha de acesso</label>
             <input type="password" id="site-password" autocomplete="current-password" placeholder="Digite a senha">
             <div id="password-error" class="password-error" aria-live="polite"></div>
@@ -27,10 +27,11 @@
         <div class="logo-container">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
         </div>
-        <h1>Caixa - Festa Junina 2025</h1>
+        <h1 id="app-title">Caixa - Festa Junina 2025</h1>
     </header>
 
     <main>
+        <section id="cashier-view">
         <div class="categories">
             <button class="category-btn active" data-category="all">Todos</button>
             <button class="category-btn" data-category="salgados">Salgados</button>
@@ -159,6 +160,27 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        </section>
+
+        <section id="student-view" class="student-view hidden">
+            <div class="student-header-card">
+                <div>
+                    <h2><i class="fas fa-eye"></i> Visão Aluno</h2>
+                    <p id="student-scope-text">Acompanhe fichas vendidas, arrecadação e retiradas.</p>
+                </div>
+                <div class="student-header-actions">
+                    <button type="button" class="refresh-student-btn" onclick="loadStudentView()">
+                        <i class="fas fa-rotate"></i> Atualizar
+                    </button>
+                    <button type="button" class="student-logout-btn" onclick="logoutAccess()">
+                        <i class="fas fa-right-from-bracket"></i> Trocar senha
+                    </button>
+                </div>
+            </div>
+            <div id="student-status" class="charts-status neutral">Carregando painel dos alunos...</div>
+            <div id="student-items-container" class="items-grid student-items-grid"></div>
         </section>
 
         <div class="watermark">

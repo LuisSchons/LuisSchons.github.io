@@ -2,26 +2,63 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbx8alet0-xUoV1uEeU-
 
 const items = [
     // Salgados
-    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png" },
-    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png" },
-    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha." },
-    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha." },
-    { name: "Milho", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png" },
-    { name: "Pipoca Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png" },
+    { name: "Caldo (Frango/Feijão)", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "caldo-frango.png", ownerGroup: "3º de Mineração", fichaLimit: 200 },
+    { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png", ownerGroup: "3º de Informática", fichaLimit: 200 },
+    { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha.", ownerGroup: "2º de Mineração", fichaLimit: 140 },
+    { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Pão, molho de salsicha, purê de batata, bacon e batata palha.", ownerGroup: "2º de Mineração", fichaLimit: 130 },
+    { name: "Pipoca Doce/Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-doce.png", ownerGroup: "2º de Informática", fichaLimit: 150 },
+    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", ownerGroup: "2º de Informática", fichaLimit: 50 },
+    { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", ownerGroup: "2º de Informática", fichaLimit: 70 },
 
     // Doces
-    { name: "Pipoca Doce", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "pipoca-doce.png" },
-    { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png" },
-    { name: "Arroz Doce", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "arroz-doce.png" },
-    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png" },
-    { name: "Canjica", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "canjica.png" },
+    { name: "Arroz Doce", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "arroz-doce.png", ownerGroup: "2º de Informática", fichaLimit: null },
+    { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png", ownerGroup: "1º de Informática", fichaLimit: 200 },
+    { name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", ownerGroup: "1º de Desenvolvimento de Sistemas", fichaLimit: 80 },
 
     // Bebidas
-    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png" },
-    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png" },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png" },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png" }
+    { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
+    { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
+
+    // Outros
+    { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
 ];
+
+const THIRD_YEAR_SHARED_ITEMS = ["Água Mineral", "Água com Gás", "Refrigerante", "Suco de Caixinha"];
+
+const STUDENT_GROUPS = {
+    terceiroMineracao: {
+        label: "3º de Mineração",
+        password: "3MIN-IF-6uR4pQ9v",
+        allowedItems: ["Caldo (Frango/Feijão)", ...THIRD_YEAR_SHARED_ITEMS]
+    },
+    terceiroInformatica: {
+        label: "3º de Informática",
+        password: "3INFO-IF-P8xT2mKd",
+        allowedItems: ["Pastel", ...THIRD_YEAR_SHARED_ITEMS]
+    },
+    segundoMineracao: {
+        label: "2º de Mineração",
+        password: "2MIN-IF-zW7nA5cL",
+        allowedItems: ["Cachorro Quente Tradicional", "Cachorro Quente Completo"]
+    },
+    segundoInformatica: {
+        label: "2º de Informática",
+        password: "2INFO-IF-L9qR3sVy",
+        allowedItems: ["Pipoca Doce/Salgada", "Pipoca de Leite Ninho", "Milho Cozido", "Arroz Doce"]
+    },
+    primeiroInformatica: {
+        label: "1º de Informática",
+        password: "1INFO-IF-B4hK8tNp",
+        allowedItems: ["Maçã do Amor"]
+    },
+    primeiroDs: {
+        label: "1º de Desenvolvimento de Sistemas",
+        password: "1DS-IF-X6mV2jQa",
+        allowedItems: ["Canjica"]
+    }
+};
 
 let quantities = {};
 items.forEach(item => {
@@ -35,9 +72,14 @@ let amountPaid = 0;
 let saleInProgress = false;
 let undoInProgress = false;
 let chartsInProgress = false;
+let studentInProgress = false;
+let studentWithdrawalDraft = {};
+let currentAccessProfile = null;
+let latestStudentStatusItems = [];
 
 const STORAGE_KEYS = {
-    sales: "festaJuninaSales"
+    sales: "festaJuninaSales",
+    accessProfile: "festaJuninaAccessProfileV1"
 };
 
 const COOKIE_KEYS = {
@@ -56,9 +98,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updatePaymentMethodDisplay();
     updateOrderSummary();
     restoreSellerName();
-    setAppAccess(hasValidAccessCookie());
-});
 
+    const savedProfile = getSavedAccessProfile();
+    if (savedProfile) {
+        setAppAccess(true, savedProfile);
+    } else if (hasValidAccessCookie()) {
+        setAppAccess(true, { role: "cashier", label: "Professor / Caixa" });
+    } else {
+        setAppAccess(false);
+    }
+});
 
 function setupAccessGate() {
     const form = document.getElementById("password-form");
@@ -70,12 +119,16 @@ function setupAccessGate() {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
 
-        if (passwordInput.value === SITE_PASSWORD) {
-            setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
+        const profile = resolveAccessPassword(passwordInput.value.trim());
+
+        if (profile) {
+            saveAccessProfile(profile);
+            if (profile.role === "cashier") {
+                setCookie(COOKIE_KEYS.access, "ok", ACCESS_COOKIE_MAX_AGE_SECONDS);
+            }
             passwordInput.value = "";
             if (errorBox) errorBox.textContent = "";
-            setAppAccess(true);
-            document.getElementById("seller-name")?.focus();
+            setAppAccess(true, profile);
         } else {
             if (errorBox) errorBox.textContent = "Senha incorreta. Tente novamente.";
             passwordInput.select();
@@ -83,11 +136,61 @@ function setupAccessGate() {
     });
 }
 
+function resolveAccessPassword(password) {
+    if (password === SITE_PASSWORD) {
+        return { role: "cashier", label: "Professor / Caixa" };
+    }
+
+    for (const [groupKey, group] of Object.entries(STUDENT_GROUPS)) {
+        if (password === group.password) {
+            return {
+                role: "student",
+                label: group.label,
+                groupKey,
+                allowedItems: group.allowedItems
+            };
+        }
+    }
+
+    return null;
+}
+
 function hasValidAccessCookie() {
     return getCookie(COOKIE_KEYS.access) === "ok";
 }
 
-function setAppAccess(isAllowed) {
+function saveAccessProfile(profile) {
+    const payload = {
+        ...profile,
+        expiresAt: Date.now() + ACCESS_COOKIE_MAX_AGE_SECONDS * 1000
+    };
+    localStorage.setItem(STORAGE_KEYS.accessProfile, JSON.stringify(payload));
+}
+
+function getSavedAccessProfile() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.accessProfile);
+        if (!raw) return null;
+        const profile = JSON.parse(raw);
+        if (!profile || !profile.role || !profile.expiresAt || profile.expiresAt <= Date.now()) {
+            localStorage.removeItem(STORAGE_KEYS.accessProfile);
+            return null;
+        }
+        return profile;
+    } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.accessProfile);
+        return null;
+    }
+}
+
+function logoutAccess() {
+    localStorage.removeItem(STORAGE_KEYS.accessProfile);
+    setCookie(COOKIE_KEYS.access, "", 0);
+    currentAccessProfile = null;
+    setAppAccess(false);
+}
+
+function setAppAccess(isAllowed, profile = null) {
     const gate = document.getElementById("access-gate");
     const appRoot = document.getElementById("app-root");
 
@@ -103,8 +206,35 @@ function setAppAccess(isAllowed) {
     }
 
     if (!isAllowed) {
+        showCashierView(false);
+        showStudentView(false);
         setTimeout(() => document.getElementById("site-password")?.focus(), 50);
+        return;
     }
+
+    currentAccessProfile = profile || { role: "cashier", label: "Professor / Caixa" };
+
+    if (currentAccessProfile.role === "student") {
+        showCashierView(false);
+        showStudentView(true);
+        loadStudentView();
+    } else {
+        showStudentView(false);
+        showCashierView(true);
+        document.getElementById("seller-name")?.focus();
+    }
+}
+
+function showCashierView(show) {
+    document.getElementById("cashier-view")?.classList.toggle("hidden", !show);
+    const title = document.getElementById("app-title");
+    if (show && title) title.textContent = "Caixa - Festa Junina 2025";
+}
+
+function showStudentView(show) {
+    document.getElementById("student-view")?.classList.toggle("hidden", !show);
+    const title = document.getElementById("app-title");
+    if (show && title) title.textContent = "Visão Aluno - Festa Junina 2025";
 }
 
 function setupEventListeners() {
@@ -712,6 +842,207 @@ function renderSalesDashboard(summary, sourceLabel) {
         valueFormatter: value => `R$ ${formatCurrency(value)}`,
         emptyText: "Nenhuma venda por professor ainda."
     });
+}
+
+
+function requestStudentStatusFromBackend() {
+    return jsonpRequest({ action: "studentStatus" });
+}
+
+function requestStudentWithdrawalFromBackend(itemName, quantity) {
+    return jsonpRequest({
+        action: "registerWithdrawal",
+        itemName,
+        quantity: String(quantity),
+        groupLabel: currentAccessProfile?.label || "Aluno"
+    });
+}
+
+async function loadStudentView() {
+    if (studentInProgress) return;
+
+    const statusBox = document.getElementById("student-status");
+    if (statusBox) {
+        statusBox.textContent = "Carregando fichas vendidas no TXT central...";
+        statusBox.className = "charts-status neutral";
+    }
+
+    studentInProgress = true;
+    setStudentButtonsDisabled(true);
+
+    try {
+        if (!isBackendConfigured()) {
+            throw new Error("BACKEND_URL não configurado.");
+        }
+
+        const response = await requestStudentStatusFromBackend();
+        if (!response.ok) {
+            throw new Error(response.message || "Não foi possível consultar o painel dos alunos.");
+        }
+
+        latestStudentStatusItems = response.items || [];
+        renderStudentView(latestStudentStatusItems);
+        if (statusBox) {
+            statusBox.textContent = "Visão aluno atualizada.";
+            statusBox.className = "charts-status success";
+        }
+    } catch (error) {
+        console.error(error);
+        renderStudentView([]);
+        if (statusBox) {
+            statusBox.textContent = "Erro ao consultar o TXT central. Verifique internet e se o Apps Script desta versão foi implantado.";
+            statusBox.className = "charts-status danger";
+        }
+    } finally {
+        studentInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
+}
+
+function renderStudentView(statusItems) {
+    const container = document.getElementById("student-items-container");
+    const scopeText = document.getElementById("student-scope-text");
+    if (!container) return;
+
+    const profile = currentAccessProfile || getSavedAccessProfile();
+    const allowedItems = profile?.allowedItems || [];
+    const allowedSet = new Set(allowedItems.map(normalizeText));
+    const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
+
+    if (scopeText) {
+        scopeText.textContent = `${profile?.label || "Turma"}: acompanhe fichas vendidas, arrecadação e fichas já retiradas.`;
+    }
+
+    const visibleItems = items.filter(item => allowedSet.has(normalizeText(item.name)));
+
+    if (visibleItems.length === 0) {
+        container.innerHTML = '<div class="no-items">Nenhum item configurado para esta senha.</div>';
+        return;
+    }
+
+    container.innerHTML = visibleItems.map((item, index) => {
+        const key = normalizeText(item.name);
+        const status = statusMap.get(key) || {};
+        const sold = Number(status.sold) || 0;
+        const revenue = Number(status.revenue) || 0;
+        const withdrawn = Number(status.withdrawn) || 0;
+        const pending = Math.max(sold - withdrawn, 0);
+        const draftQty = studentWithdrawalDraft[key] || 0;
+        const imagePath = item.image ? `images/${item.image}` : "images/default.png";
+        const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
+        const soldPercent = fichaLimit && fichaLimit > 0 ? Math.min((sold / fichaLimit) * 100, 100) : (sold > 0 ? 100 : 0);
+        const withdrawnPercent = sold > 0 ? Math.min((withdrawn / sold) * 100, 100) : 0;
+
+        return `
+            <div class="item-card student-card category-${item.category}">
+                <div class="item-header">
+                    <div class="item-name-container">
+                        <div class="item-name">${escapeHtml(item.name)}</div>
+                        <div class="item-price">R$ ${formatCurrency(item.cashPrice)}</div>
+                    </div>
+                    <img src="${imagePath}" alt="${escapeHtml(item.name)}" class="item-image" onerror="this.src='images/default.png'">
+                </div>
+                <div class="item-body">
+                    <div class="student-card-meta">
+                        ${item.ownerGroup ? `<span>Responsável: ${escapeHtml(item.ownerGroup)}</span>` : ""}
+                        ${fichaLimit === null ? "" : `<span>Fichas previstas: ${fichaLimit}</span>`}
+                    </div>
+
+                    <div class="student-progress-block">
+                        <div class="student-progress-label"><span>Vendidas</span><strong>${sold}${fichaLimit === null ? "" : ` / ${fichaLimit}`}</strong></div>
+                        <div class="student-progress-track"><div class="student-progress-fill sold-fill" style="width: ${soldPercent}%"></div></div>
+                        <div class="student-progress-label"><span>Retiradas</span><strong>${withdrawn} / ${sold}</strong></div>
+                        <div class="student-progress-track"><div class="student-progress-fill withdrawn-fill" style="width: ${withdrawnPercent}%"></div></div>
+                    </div>
+
+                    <div class="student-stats-grid">
+                        <div><span>Vendidas</span><strong>${sold}</strong></div>
+                        <div><span>Arrecadado</span><strong>R$ ${formatCurrency(revenue)}</strong></div>
+                        <div><span>Retiradas</span><strong>${withdrawn}</strong></div>
+                        <div><span>A retirar</span><strong>${pending}</strong></div>
+                    </div>
+
+                    <div class="student-withdraw-row">
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="changeStudentWithdrawal('${escapeJs(item.name)}', -1)" ${draftQty <= 0 ? "disabled" : ""}>
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <div class="quantity-value">${draftQty}</div>
+                            <button class="quantity-btn" onclick="changeStudentWithdrawal('${escapeJs(item.name)}', 1)" ${pending <= 0 || draftQty >= pending ? "disabled" : ""}>
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <button class="student-register-btn" onclick="registerStudentWithdrawal('${escapeJs(item.name)}')" ${draftQty <= 0 ? "disabled" : ""}>
+                            <i class="fas fa-check"></i> Registrar retirada
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function changeStudentWithdrawal(itemName, change) {
+    const key = normalizeText(itemName);
+    const current = studentWithdrawalDraft[key] || 0;
+    studentWithdrawalDraft[key] = Math.max(current + change, 0);
+    renderStudentView(latestStudentStatusItems);
+}
+
+async function registerStudentWithdrawal(itemName) {
+    const key = normalizeText(itemName);
+    const quantity = studentWithdrawalDraft[key] || 0;
+
+    if (quantity <= 0) {
+        alert("Use os botões + e - para informar quantas fichas foram retiradas.");
+        return;
+    }
+
+    if (!confirm(`Registrar retirada de ${quantity} ficha(s) de ${itemName}?`)) {
+        return;
+    }
+
+    studentInProgress = true;
+    setStudentButtonsDisabled(true);
+
+    const statusBox = document.getElementById("student-status");
+    if (statusBox) {
+        statusBox.textContent = "Registrando retirada no TXT central...";
+        statusBox.className = "charts-status neutral";
+    }
+
+    try {
+        const response = await requestStudentWithdrawalFromBackend(itemName, quantity);
+        if (!response.ok) {
+            throw new Error(response.message || "Não foi possível registrar a retirada.");
+        }
+        studentWithdrawalDraft[key] = 0;
+        await loadStudentView();
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "Erro ao registrar a retirada.");
+        if (statusBox) {
+            statusBox.textContent = "Erro ao registrar retirada.";
+            statusBox.className = "charts-status danger";
+        }
+    } finally {
+        studentInProgress = false;
+        setStudentButtonsDisabled(false);
+    }
+}
+
+function setStudentButtonsDisabled(disabled) {
+    document.querySelectorAll(".refresh-student-btn, .student-register-btn, .student-view .quantity-btn").forEach(btn => {
+        if (disabled) {
+            btn.disabled = true;
+        } else if (btn.classList.contains("refresh-student-btn")) {
+            btn.disabled = false;
+        }
+    });
+}
+
+function escapeJs(value) {
+    return String(value || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 function renderBarChart(containerId, data, options = {}) {

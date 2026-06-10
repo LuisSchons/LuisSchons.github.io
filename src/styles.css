@@ -1018,3 +1018,191 @@ body.locked {
         margin-left: 0;
     }
 }
+
+
+/* Visão aluno */
+.student-view {
+    margin-top: 1rem;
+}
+
+.student-header-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.student-header-card h2 {
+    color: var(--if-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.student-header-card p {
+    color: #555;
+}
+
+.student-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.refresh-student-btn,
+.student-logout-btn,
+.student-register-btn {
+    border: none;
+    border-radius: 50px;
+    padding: 0.65rem 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+}
+
+.refresh-student-btn,
+.student-register-btn {
+    background-color: var(--if-primary);
+    color: white;
+}
+
+.student-logout-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.refresh-student-btn:disabled,
+.student-register-btn:disabled,
+.student-view .quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.student-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.student-card-meta span {
+    background-color: #f8fff9;
+    border: 1px solid rgba(0, 131, 62, 0.25);
+    color: var(--if-primary);
+    border-radius: 50px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.student-progress-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+}
+
+.student-progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.student-progress-label strong {
+    color: var(--if-dark);
+}
+
+.student-progress-track {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.student-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.sold-fill {
+    background-color: var(--if-primary);
+}
+
+.withdrawn-fill {
+    background-color: var(--if-dark);
+}
+
+.student-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+}
+
+.student-stats-grid div {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.6rem;
+}
+
+.student-stats-grid span {
+    display: block;
+    font-size: 0.78rem;
+    color: #666;
+    margin-bottom: 0.15rem;
+}
+
+.student-stats-grid strong {
+    color: var(--if-dark);
+    font-size: 1rem;
+}
+
+.student-withdraw-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+}
+
+.student-register-btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+@media (max-width: 600px) {
+    .student-header-card {
+        flex-direction: column;
+    }
+
+    .student-header-actions,
+    .refresh-student-btn,
+    .student-logout-btn,
+    .student-register-btn {
+        width: 100%;
+    }
+
+    .student-withdraw-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .student-withdraw-row .quantity-control {
+        justify-content: center;
+    }
+}
