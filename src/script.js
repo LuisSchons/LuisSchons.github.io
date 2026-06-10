@@ -18,8 +18,8 @@ const items = [
     // Bebidas
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
     { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", description: "Uva, ...", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
 
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
@@ -76,18 +76,22 @@ let studentInProgress = false;
 let studentWithdrawalDraft = {};
 let currentAccessProfile = null;
 let latestStudentStatusItems = [];
+let adminSelectedGroupKey = null;
 
 const STORAGE_KEYS = {
     sales: "festaJuninaSales",
-    accessProfile: "festaJuninaAccessProfileV1"
+    accessProfile: "festaJuninaAccessProfileV3"
 };
 
 const COOKIE_KEYS = {
     seller: "festaJuninaSellerName",
-    access: "festaJuninaAccessOk"
+    access: "festaJuninaAccessOkV3"
 };
 
-const SITE_PASSWORD = "quadrilhaif2026";
+const CASHIER_PASSWORD = "CAIXA-LSk*[,LwxA1YD-ux8";
+const ADMIN_PASSWORD = "ADMIN-IF2026-V7p#Qm4@Rz9!Tn2-Xc";
+const ADMIN_DEFAULT_GROUP_KEY = "terceiroMineracao";
+adminSelectedGroupKey = ADMIN_DEFAULT_GROUP_KEY;
 const SELLER_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
 const ACCESS_COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
 
@@ -137,8 +141,17 @@ function setupAccessGate() {
 }
 
 function resolveAccessPassword(password) {
-    if (password === SITE_PASSWORD) {
+    if (password === CASHIER_PASSWORD) {
         return { role: "cashier", label: "Professor / Caixa" };
+    }
+
+    if (password === ADMIN_PASSWORD) {
+        return {
+            role: "admin",
+            label: "Administrador",
+            groupKey: ADMIN_DEFAULT_GROUP_KEY,
+            allowedItems: items.map(item => item.name)
+        };
     }
 
     for (const [groupKey, group] of Object.entries(STUDENT_GROUPS)) {
@@ -201,11 +214,14 @@ function setAppAccess(isAllowed, profile = null) {
         gate.setAttribute("aria-hidden", String(isAllowed));
     }
 
+    document.getElementById("header-logout-btn")?.classList.toggle("hidden", !isAllowed);
+
     if (appRoot) {
         appRoot.setAttribute("aria-hidden", String(!isAllowed));
     }
 
     if (!isAllowed) {
+        showAdminTabs(false);
         showCashierView(false);
         showStudentView(false);
         setTimeout(() => document.getElementById("site-password")?.focus(), 50);
@@ -213,6 +229,15 @@ function setAppAccess(isAllowed, profile = null) {
     }
 
     currentAccessProfile = profile || { role: "cashier", label: "Professor / Caixa" };
+
+    if (currentAccessProfile.role === "admin") {
+        adminSelectedGroupKey = currentAccessProfile.groupKey || ADMIN_DEFAULT_GROUP_KEY;
+        showAdminTabs(true);
+        switchAdminView("cash");
+        return;
+    }
+
+    showAdminTabs(false);
 
     if (currentAccessProfile.role === "student") {
         showCashierView(false);
@@ -228,13 +253,92 @@ function setAppAccess(isAllowed, profile = null) {
 function showCashierView(show) {
     document.getElementById("cashier-view")?.classList.toggle("hidden", !show);
     const title = document.getElementById("app-title");
-    if (show && title) title.textContent = "Caixa - Festa Junina 2025";
+
+    if (show && title) {
+        title.textContent = currentAccessProfile?.role === "admin"
+            ? "Admin - Caixa - Festa Junina 2026"
+            : "Caixa - Festa Junina 2026";
+    }
 }
 
 function showStudentView(show) {
     document.getElementById("student-view")?.classList.toggle("hidden", !show);
     const title = document.getElementById("app-title");
-    if (show && title) title.textContent = "Visão Aluno - Festa Junina 2025";
+
+    if (show && title) {
+        const scope = getCurrentStudentScope();
+        title.textContent = currentAccessProfile?.role === "admin"
+            ? `Admin - ${scope.groupLabel}`
+            : "Visão Aluno - Festa Junina 2026";
+    }
+}
+
+function showAdminTabs(show) {
+    document.getElementById("admin-tabs")?.classList.toggle("hidden", !show);
+}
+
+function switchAdminView(view) {
+    if (!currentAccessProfile || currentAccessProfile.role !== "admin") return;
+
+    setAdminTabActive(view);
+
+    if (view === "cash") {
+        showStudentView(false);
+        showCashierView(true);
+        document.getElementById("charts-panel")?.classList.add("hidden");
+        document.getElementById("seller-name")?.focus();
+        return;
+    }
+
+    if (view === "charts") {
+        showStudentView(false);
+        showCashierView(true);
+        const chartsPanel = document.getElementById("charts-panel");
+        if (chartsPanel) chartsPanel.classList.remove("hidden");
+        loadSalesDashboard();
+        return;
+    }
+
+    if (STUDENT_GROUPS[view]) {
+        adminSelectedGroupKey = view;
+        studentWithdrawalDraft = {};
+        showCashierView(false);
+        showStudentView(true);
+        loadStudentView();
+    }
+}
+
+function setAdminTabActive(view) {
+    document.querySelectorAll(".admin-tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.adminView === view);
+    });
+}
+
+function getCurrentStudentScope() {
+    const profile = currentAccessProfile || getSavedAccessProfile();
+
+    if (profile?.role === "admin") {
+        const group = STUDENT_GROUPS[adminSelectedGroupKey] || STUDENT_GROUPS[ADMIN_DEFAULT_GROUP_KEY];
+        return {
+            role: "admin",
+            groupKey: adminSelectedGroupKey,
+            groupLabel: group.label,
+            label: `Administrador visualizando ${group.label}`,
+            allowedItems: group.allowedItems || []
+        };
+    }
+
+    return {
+        role: profile?.role || "student",
+        groupKey: profile?.groupKey || "",
+        groupLabel: profile?.label || "Turma",
+        label: profile?.label || "Turma",
+        allowedItems: profile?.allowedItems || []
+    };
+}
+
+function getCurrentStudentGroupLabel() {
+    return getCurrentStudentScope().groupLabel || "Aluno";
 }
 
 function setupEventListeners() {
@@ -854,7 +958,7 @@ function requestStudentWithdrawalFromBackend(itemName, quantity) {
         action: "registerWithdrawal",
         itemName,
         quantity: String(quantity),
-        groupLabel: currentAccessProfile?.label || "Aluno"
+        groupLabel: getCurrentStudentGroupLabel()
     });
 }
 
@@ -904,13 +1008,13 @@ function renderStudentView(statusItems) {
     const scopeText = document.getElementById("student-scope-text");
     if (!container) return;
 
-    const profile = currentAccessProfile || getSavedAccessProfile();
-    const allowedItems = profile?.allowedItems || [];
+    const scope = getCurrentStudentScope();
+    const allowedItems = scope.allowedItems || [];
     const allowedSet = new Set(allowedItems.map(normalizeText));
     const statusMap = new Map((statusItems || []).map(item => [normalizeText(item.name), item]));
 
     if (scopeText) {
-        scopeText.textContent = `${profile?.label || "Turma"}: acompanhe fichas vendidas, arrecadação e fichas já retiradas.`;
+        scopeText.textContent = `${scope.label}: acompanhe fichas vendidas, arrecadação, fichas já retiradas e fichas pendentes.`;
     }
 
     const visibleItems = items.filter(item => allowedSet.has(normalizeText(item.name)));

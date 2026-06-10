@@ -1206,3 +1206,141 @@ body.locked {
         justify-content: center;
     }
 }
+
+
+/* Cabeçalho com botão para sair/trocar senha */
+.header-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.header-title-row h1 {
+    margin: 0;
+}
+
+.header-logout-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 0.9rem;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+}
+
+.header-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.header-logout-btn.hidden {
+    display: none !important;
+}
+
+@media (max-width: 600px) {
+    .header-title-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .header-logout-btn {
+        width: 100%;
+        max-width: 260px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Ajuste solicitado: mais espaço entre Dinheiro/PIX e os botões +/- dos cards */
+.item-body {
+    gap: 0.85rem;
+}
+
+.price-display {
+    margin-top: 0.65rem;
+    margin-bottom: 0.55rem;
+}
+
+.item-owner,
+.item-ficha-limit {
+    margin-bottom: 0.35rem;
+}
+
+.item-controls {
+    margin-top: 1.05rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #eee;
+}
+
+/* Abas do administrador */
+.admin-tabs {
+    background-color: white;
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tab-btn {
+    border: 2px solid var(--if-primary);
+    background-color: white;
+    color: var(--if-primary);
+    border-radius: 999px;
+    padding: 0.55rem 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.admin-tab-btn.active {
+    background-color: var(--if-primary);
+    color: white;
+}
+
+.admin-tab-btn:hover {
+    background-color: var(--if-dark);
+    border-color: var(--if-dark);
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .item-controls {
+        margin-top: 1rem;
+        padding-top: 0.8rem;
+    }
+
+    .price-display {
+        margin-bottom: 0.7rem;
+    }
+
+    .admin-tabs {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+        border-radius: 10px;
+    }
+
+    .admin-tab-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}

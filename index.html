@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caixa - Quadrilha IF Goiano Catalão</title>
+    <title>Caixa - Festa Junina 2026 IF Goiano Catalão</title>
     <link rel="stylesheet" href="src/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -12,7 +12,7 @@
         <form id="password-form" class="access-card">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="access-logo">
             <h2 id="password-title">Acesso ao Sistema</h2>
-            <p>Informe a senha do professor/caixa ou a senha da sua turma.</p>
+            <p>Informe a senha do caixa, da turma ou do administrador.</p>
             <label for="site-password">Senha de acesso</label>
             <input type="password" id="site-password" autocomplete="current-password" placeholder="Digite a senha">
             <div id="password-error" class="password-error" aria-live="polite"></div>
@@ -27,10 +27,39 @@
         <div class="logo-container">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
         </div>
-        <h1 id="app-title">Caixa - Festa Junina 2025</h1>
+        <div class="header-title-row">
+            <h1 id="app-title">Caixa - Festa Junina 2026</h1>
+            <button type="button" id="header-logout-btn" class="header-logout-btn hidden" onclick="logoutAccess()">
+                <i class="fas fa-right-from-bracket"></i> Sair / trocar senha
+            </button>
+        </div>
     </header>
 
     <main>
+        <nav id="admin-tabs" class="admin-tabs hidden" aria-label="Navegação do administrador">
+            <button type="button" class="admin-tab-btn active" data-admin-view="cash" onclick="switchAdminView('cash')">
+                <i class="fas fa-cash-register"></i> Caixa
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="terceiroMineracao" onclick="switchAdminView('terceiroMineracao')">
+                3º Mineração
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="terceiroInformatica" onclick="switchAdminView('terceiroInformatica')">
+                3º Informática
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="segundoMineracao" onclick="switchAdminView('segundoMineracao')">
+                2º Mineração
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="segundoInformatica" onclick="switchAdminView('segundoInformatica')">
+                2º Informática
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="primeiroInformatica" onclick="switchAdminView('primeiroInformatica')">
+                1º Informática
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="primeiroDs" onclick="switchAdminView('primeiroDs')">
+                1º Des. Sistemas
+            </button>
+        </nav>
+
         <section id="cashier-view">
         <div class="categories">
             <button class="category-btn active" data-category="all">Todos</button>
