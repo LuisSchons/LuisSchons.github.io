@@ -46,7 +46,7 @@
                     <i class="fas fa-cash-register"></i> Caixa
                 </button>
                 <button type="button" class="admin-tab-btn" data-view="student" onclick="switchAdminView('student')">
-                    <i class="fas fa-utensils"></i> Alunos / Retirada
+                    <i class="fas fa-utensils"></i> Painel dos Alunos
                 </button>
                 <button type="button" class="admin-tab-btn" data-view="charts" onclick="switchAdminView('charts')">
                     <i class="fas fa-chart-column"></i> Gráficos
@@ -137,14 +137,14 @@
             <section id="student-screen" class="screen-section hidden">
                 <div class="student-header-card">
                     <div>
-                        <h2><i class="fas fa-utensils"></i> Controle de Itens Vendidos</h2>
-                        <p id="student-scope-text">Itens pendentes de retirada/preparo.</p>
+                        <h2><i class="fas fa-utensils"></i> Fichas Vendidas por Turma</h2>
+                        <p id="student-scope-text">Consulte quantas fichas foram vendidas por item da turma.</p>
                     </div>
                     <button type="button" class="refresh-student-btn" onclick="loadStudentPanel()">
                         <i class="fas fa-rotate"></i> Atualizar
                     </button>
                 </div>
-                <div id="student-status" class="charts-status neutral">Clique em atualizar para carregar os itens vendidos.</div>
+                <div id="student-status" class="charts-status neutral">Clique em atualizar para carregar as fichas vendidas.</div>
                 <div id="student-items-container" class="student-items-grid"></div>
             </section>
 

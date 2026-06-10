@@ -1313,3 +1313,23 @@ body.locked {
     color: #7a5b00;
     border-color: rgba(122, 91, 0, 0.2);
 }
+
+
+/* Tela dos alunos somente consulta */
+.student-counters-readonly {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+
+.student-counters-readonly .sold-counter {
+    border: 2px solid rgba(0, 131, 62, 0.18);
+    background: #f1fff6;
+}
+
+.student-counters-readonly .sold-counter strong {
+    color: var(--if-primary);
+    font-size: 1.8rem;
+}
+
+.admin-only-action {
+    margin-top: 0.9rem;
+}

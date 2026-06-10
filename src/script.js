@@ -864,7 +864,7 @@ async function loadStudentPanel() {
     if (studentActionInProgress) return;
 
     studentActionInProgress = true;
-    setStudentStatus("Carregando itens vendidos...", "neutral");
+    setStudentStatus("Carregando fichas vendidas...", "neutral");
     setStudentButtonsDisabled(true);
 
     try {
@@ -874,10 +874,10 @@ async function loadStudentPanel() {
         }
 
         renderStudentPanel(response);
-        setStudentStatus("Itens atualizados.", "success");
+        setStudentStatus("Fichas vendidas atualizadas.", "success");
     } catch (error) {
         console.error(error);
-        setStudentStatus(error.message || "Erro ao carregar os itens vendidos.", "danger");
+        setStudentStatus(error.message || "Erro ao carregar as fichas vendidas.", "danger");
     } finally {
         studentActionInProgress = false;
         setStudentButtonsDisabled(false);
@@ -892,96 +892,62 @@ function renderStudentPanel(response) {
     const session = requireSession();
     const panelItems = Array.isArray(response.items) ? response.items : [];
     const title = session.role === "admin"
-        ? "Admin: todos os itens vendidos e pendentes."
+        ? "Admin: visualização de todos os itens vendidos."
         : `Itens liberados para ${response.studentGroupLabel || session.studentGroupLabel || "este grupo"}.`;
 
     if (scopeText) scopeText.textContent = title;
 
     if (panelItems.length === 0) {
-        container.innerHTML = '<div class="no-items">Nenhum item vendido para este grupo ainda.</div>';
+        container.innerHTML = '<div class="no-items">Nenhum item configurado para este grupo.</div>';
         return;
     }
 
     container.innerHTML = panelItems.map((item, index) => {
-        const pending = Math.max(Number(item.pending) || 0, 0);
         const sold = Number(item.sold) || 0;
-        const fulfilled = Number(item.fulfilled) || 0;
+        const grossSold = Number(item.grossSold ?? sold) || 0;
         const adminRemoved = Number(item.adminRemoved) || 0;
         const fichaLimit = item.fichaLimit === null || item.fichaLimit === undefined ? null : Number(item.fichaLimit);
         const remainingFichas = fichaLimit === null ? null : Math.max(fichaLimit - sold, 0);
-        const disabled = pending <= 0 ? "disabled" : "";
+
         const adminControls = session.role === "admin" ? `
-            <div class="admin-item-adjust">
-                <button type="button" class="admin-remove-item-btn" onclick="adminRemoveItem('${escapeJs(item.name)}', ${index})">
+            <div class="student-action-row admin-only-action">
+                <input id="admin-remove-qty-${index}" type="number" min="1" max="${Math.max(sold, 1)}" value="${sold > 0 ? 1 : 0}" inputmode="numeric" ${sold <= 0 ? "disabled" : ""}>
+                <button type="button" class="admin-remove-item-btn" onclick="adminRemoveItem('${escapeJs(item.name)}', ${index})" ${sold <= 0 ? "disabled" : ""}>
                     <i class="fas fa-triangle-exclamation"></i> Remover quantidade
                 </button>
             </div>
+        ` : "";
+
+        const adminInfo = session.role === "admin" && adminRemoved > 0 ? `
+            <div><span>Vendas brutas</span><strong>${grossSold}</strong></div>
+            <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
         ` : "";
 
         return `
             <article class="student-item-card">
                 <div class="student-item-title">
                     <h3>${escapeHtml(item.name)}</h3>
-                    <span>${escapeHtml(item.category || "")}</span>
+                    <span>${escapeHtml(item.ownerGroup || item.category || "")}</span>
                 </div>
-                <div class="student-counters">
-                    <div><span>Vendidos</span><strong>${sold}</strong></div>
-                    <div><span>Feitos/retirados</span><strong>${fulfilled}</strong></div>
-                    <div><span>Ajustes admin</span><strong>${adminRemoved}</strong></div>
-                    <div class="pending-counter"><span>Pendentes</span><strong>${pending}</strong></div>
+                <div class="student-counters student-counters-readonly">
+                    <div class="sold-counter"><span>Fichas vendidas</span><strong>${sold}</strong></div>
                     <div><span>Fichas totais</span><strong>${fichaLimit === null ? "—" : fichaLimit}</strong></div>
-                    <div><span>Fichas não vendidas</span><strong>${remainingFichas === null ? "—" : remainingFichas}</strong></div>
-                </div>
-                <div class="student-action-row">
-                    <input id="fulfill-qty-${index}" type="number" min="1" max="${Math.max(pending, 1)}" value="${pending > 0 ? 1 : 0}" inputmode="numeric" ${disabled}>
-                    <button type="button" class="mark-done-btn" onclick="markItemFulfilled('${escapeJs(item.name)}', ${index})" ${disabled}>
-                        <i class="fas fa-check"></i> Marcar como feito
-                    </button>
+                    <div><span>Ainda não vendidas</span><strong>${remainingFichas === null ? "—" : remainingFichas}</strong></div>
+                    ${adminInfo}
                 </div>
                 ${adminControls}
             </article>
         `;
     }).join("");
 }
-
-async function markItemFulfilled(itemName, index) {
-    const input = document.getElementById(`fulfill-qty-${index}`);
-    const quantity = Math.max(Number(input?.value) || 0, 0);
-
-    if (quantity <= 0) {
-        alert("Informe uma quantidade válida.");
-        return;
-    }
-
-    if (!confirm(`Marcar ${quantity} unidade(s) de ${itemName} como feita(s)/retirada(s)?`)) return;
-
-    studentActionInProgress = true;
-    setStudentButtonsDisabled(true);
-    setStudentStatus("Registrando baixa do item...", "neutral");
-
-    try {
-        const response = await jsonpRequest(authParams({
-            action: "fulfillItem",
-            itemName,
-            quantity: String(quantity)
-        }));
-
-        if (!response.ok) throw new Error(response.message || "Não foi possível registrar a baixa.");
-        await loadStudentPanel();
-    } catch (error) {
-        console.error(error);
-        setStudentStatus(error.message || "Erro ao marcar item como feito.", "danger");
-    } finally {
-        studentActionInProgress = false;
-        setStudentButtonsDisabled(false);
-    }
+async function markItemFulfilled() {
+    alert("A tela dos alunos agora é somente de consulta. Os alunos não registram retirada/produção no sistema.");
 }
-
 async function adminRemoveItem(itemName, index) {
     const session = requireSession();
     if (session.role !== "admin") return;
 
-    const input = document.getElementById(`fulfill-qty-${index}`);
+    const input = document.getElementById(`admin-remove-qty-${index}`) || document.getElementById(`fulfill-qty-${index}`);
     const quantity = Math.max(Number(input?.value) || 0, 0);
 
     if (quantity <= 0) {
@@ -989,7 +955,7 @@ async function adminRemoveItem(itemName, index) {
         return;
     }
 
-    const reason = prompt(`Motivo para remover ${quantity} unidade(s) de ${itemName} do total pendente/vendido:`, "Ajuste manual do admin");
+    const reason = prompt(`Motivo para remover ${quantity} unidade(s) de ${itemName} do total vendido:`, "Ajuste manual do admin");
     if (reason === null) return;
 
     studentActionInProgress = true;
