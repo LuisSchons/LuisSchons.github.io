@@ -1247,6 +1247,7 @@ function changeStudentWithdrawal(itemName, change) {
 
 async function registerStudentWithdrawal(itemName) {
     const fallbackItem = (latestStudentStatusItems || []).find(row => normalizeText(row.name) === normalizeText(itemName));
+
     if (fallbackItem && fallbackItem.fallbackFromSummary) {
         alert("A tela está usando fallback dos gráficos. Para registrar retiradas, atualize e publique o AppsScript-TXT-Drive.js desta versão.");
         return;
@@ -1268,6 +1269,7 @@ async function registerStudentWithdrawal(itemName) {
     setStudentButtonsDisabled(true);
 
     const statusBox = document.getElementById("student-status");
+
     if (statusBox) {
         statusBox.textContent = "Registrando retirada no TXT central...";
         statusBox.className = "charts-status neutral";
@@ -1275,14 +1277,32 @@ async function registerStudentWithdrawal(itemName) {
 
     try {
         const response = await requestStudentWithdrawalFromBackend(itemName, quantity);
+
         if (!response.ok) {
             throw new Error(response.message || "Não foi possível registrar a retirada.");
         }
+
         studentWithdrawalDraft[key] = 0;
+
+        if (statusBox) {
+            statusBox.textContent = "Retirada registrada. Atualizando tela...";
+            statusBox.className = "charts-status neutral";
+        }
+
+        /*
+         * Importante:
+         * libera a trava interna antes de chamar loadStudentView().
+         * Caso contrário, loadStudentView() retorna no começo por causa do:
+         * if (studentInProgress) return;
+         */
+        studentInProgress = false;
+        setStudentButtonsDisabled(false);
+
         await loadStudentView();
     } catch (error) {
         console.error(error);
         alert(error.message || "Erro ao registrar a retirada.");
+
         if (statusBox) {
             statusBox.textContent = "Erro ao registrar retirada.";
             statusBox.className = "charts-status danger";
