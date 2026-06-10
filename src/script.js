@@ -18,8 +18,8 @@ const items = [
     // Bebidas
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
     { name: "Água com Gás", cashPrice: 4.00, cardPrice: 4.20, category: "bebidas", image: "agua-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 12 },
-    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
-    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", description: "Uva, ...", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
+    { name: "Refrigerante", cashPrice: 6.00, cardPrice: 6.30, category: "bebidas", image: "refrigerante.png", description: "Coca-Cola e Guaraná juntos.", ownerGroup: "3º anos - compartilhado", fichaLimit: 200 },
+    { name: "Suco de Caixinha", cashPrice: 3.00, cardPrice: 3.15, category: "bebidas", image: "suco-de-caixinha.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 15 },
 
     // Outros
     { name: "Cartela de Bingo", cashPrice: 5.00, cardPrice: 5.25, category: "outros", image: "bingo.png", ownerGroup: "Bingo", fichaLimit: null }
@@ -76,6 +76,7 @@ let studentInProgress = false;
 let studentWithdrawalDraft = {};
 let currentAccessProfile = null;
 let latestStudentStatusItems = [];
+let studentAutoRefreshTimer = null;
 let adminSelectedGroupKey = null;
 
 const STORAGE_KEYS = {
@@ -270,6 +271,9 @@ function showStudentView(show) {
         title.textContent = currentAccessProfile?.role === "admin"
             ? `Admin - ${scope.groupLabel}`
             : "Visão Aluno - Festa Junina 2026";
+        startStudentAutoRefresh();
+    } else {
+        stopStudentAutoRefresh();
     }
 }
 
@@ -692,6 +696,10 @@ async function launchSale() {
         }
 
         clearCurrentSale();
+
+        // Se o administrador estiver usando o mesmo dispositivo para acompanhar alunos/gráficos,
+        // garante que os painéis sejam recarregados a partir do registro central.
+        latestStudentStatusItems = [];
     } catch (error) {
         console.error(error);
         alert("A venda ficou salva no backup local, mas ocorreu erro ao enviar para o registro central. Verifique internet e configuração do Apps Script.");
@@ -949,8 +957,83 @@ function renderSalesDashboard(summary, sourceLabel) {
 }
 
 
-function requestStudentStatusFromBackend() {
-    return jsonpRequest({ action: "studentStatus" });
+
+function startStudentAutoRefresh() {
+    stopStudentAutoRefresh();
+
+    studentAutoRefreshTimer = setInterval(() => {
+        const studentView = document.getElementById("student-view");
+        const isStudentVisible = studentView && !studentView.classList.contains("hidden");
+
+        if (isStudentVisible && !studentInProgress) {
+            loadStudentView(true);
+        }
+    }, 15000);
+}
+
+function stopStudentAutoRefresh() {
+    if (studentAutoRefreshTimer) {
+        clearInterval(studentAutoRefreshTimer);
+        studentAutoRefreshTimer = null;
+    }
+}
+
+function buildStudentStatusFromSummary(summary) {
+    const safeSummary = normalizeDashboardSummary(summary);
+    const itemMap = new Map();
+
+    safeSummary.items.forEach(item => {
+        itemMap.set(normalizeText(item.name), {
+            name: item.name,
+            sold: Number(item.quantity) || 0,
+            revenue: Number(item.revenue) || 0,
+            withdrawn: 0,
+            pending: Number(item.quantity) || 0
+        });
+    });
+
+    return items.map(item => {
+        const found = itemMap.get(normalizeText(item.name)) || {};
+        const sold = Number(found.sold) || 0;
+        const withdrawn = Number(found.withdrawn) || 0;
+
+        return {
+            name: item.name,
+            category: item.category,
+            fichaLimit: item.fichaLimit,
+            ownerGroup: item.ownerGroup,
+            cashPrice: item.cashPrice,
+            sold,
+            revenue: Number(found.revenue) || 0,
+            withdrawn,
+            pending: Math.max(sold - withdrawn, 0),
+            fallbackFromSummary: true
+        };
+    });
+}
+
+
+async function requestStudentStatusFromBackend() {
+    const response = await jsonpRequest({ action: "studentStatus", cacheBust: String(Date.now()) });
+
+    if (response && response.ok && Array.isArray(response.items) && response.items.length > 0) {
+        return response;
+    }
+
+    // Fallback: se o Web App ainda estiver respondendo somente ao "summary",
+    // a Visão Aluno passa a usar os mesmos totais que alimentam os gráficos.
+    const summaryResponse = await requestSalesSummaryFromBackend();
+
+    if (summaryResponse && summaryResponse.ok && summaryResponse.summary) {
+        return {
+            ok: true,
+            message: "Visão aluno carregada a partir do resumo central.",
+            items: buildStudentStatusFromSummary(summaryResponse.summary),
+            fallbackFromSummary: true
+        };
+    }
+
+    return response || { ok: false, message: "Não foi possível carregar dados dos alunos." };
 }
 
 function requestStudentWithdrawalFromBackend(itemName, quantity) {
@@ -962,11 +1045,11 @@ function requestStudentWithdrawalFromBackend(itemName, quantity) {
     });
 }
 
-async function loadStudentView() {
+async function loadStudentView(silent = false) {
     if (studentInProgress) return;
 
     const statusBox = document.getElementById("student-status");
-    if (statusBox) {
+    if (statusBox && !silent) {
         statusBox.textContent = "Carregando fichas vendidas no TXT central...";
         statusBox.className = "charts-status neutral";
     }
@@ -987,8 +1070,11 @@ async function loadStudentView() {
         latestStudentStatusItems = response.items || [];
         renderStudentView(latestStudentStatusItems);
         if (statusBox) {
-            statusBox.textContent = "Visão aluno atualizada.";
-            statusBox.className = "charts-status success";
+            const now = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            statusBox.textContent = response.fallbackFromSummary
+                ? `Visão aluno atualizada às ${now}. Atenção: usando fallback dos gráficos; atualize o Apps Script para registrar retiradas.`
+                : `Visão aluno atualizada às ${now}.`;
+            statusBox.className = response.fallbackFromSummary ? "charts-status neutral" : "charts-status success";
         }
     } catch (error) {
         console.error(error);
@@ -1094,6 +1180,12 @@ function changeStudentWithdrawal(itemName, change) {
 }
 
 async function registerStudentWithdrawal(itemName) {
+    const fallbackItem = (latestStudentStatusItems || []).find(row => normalizeText(row.name) === normalizeText(itemName));
+    if (fallbackItem && fallbackItem.fallbackFromSummary) {
+        alert("A tela está usando fallback dos gráficos. Para registrar retiradas, atualize e publique o AppsScript-TXT-Drive.js desta versão.");
+        return;
+    }
+
     const key = normalizeText(itemName);
     const quantity = studentWithdrawalDraft[key] || 0;
 

@@ -27,7 +27,12 @@
         <div class="logo-container">
             <img src="src/if-logo.png" alt="IF Goiano Campus Catalão" class="logo">
         </div>
-        <h1 id="app-title">Caixa - Festa Junina 2025</h1>
+        <div class="header-title-row">
+            <h1 id="app-title">Caixa - Festa Junina 2026</h1>
+            <button type="button" id="header-logout-btn" class="header-logout-btn hidden" onclick="logoutAccess()">
+                <i class="fas fa-right-from-bracket"></i> Sair / trocar senha
+            </button>
+        </div>
     </header>
 
     <main>
@@ -52,6 +57,9 @@
             </button>
             <button type="button" class="admin-tab-btn" data-admin-view="primeiroDs" onclick="switchAdminView('primeiroDs')">
                 1º Des. Sistemas
+            </button>
+            <button type="button" class="admin-tab-btn" data-admin-view="charts" onclick="switchAdminView('charts')">
+                <i class="fas fa-chart-column"></i> Gráficos
             </button>
         </nav>
 
