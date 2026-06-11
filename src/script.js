@@ -8,10 +8,10 @@ const items = [
     { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Tradicional com purê de batata e bacon", ownerGroup: "2º de Mineração", fichaLimit: 130 },
     { name: "Pipoca Salgada/Amanteigada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png", ownerGroup: "2º de Informática", fichaLimit: 150 },
     { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", ownerGroup: "2º de Informática", fichaLimit: 50 },
-    { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", ownerGroup: "2º de Informática", fichaLimit: 70 },
+    { name: "Milho Cozido", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "milho.png", ownerGroup: "2º de Informática", fichaLimit: 70 },
 
     // Doces
-    { name: "Arroz Doce", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "arroz-doce.png", ownerGroup: "2º de Informática", fichaLimit: null },
+    { name: "Arroz Doce", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "arroz-doce.png", ownerGroup: "2º de Informática", fichaLimit: null },
     { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png", ownerGroup: "1º de Informática", fichaLimit: 200 },
     //{ name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", ownerGroup: "1º de Desenvolvimento de Sistemas", fichaLimit: 80 },
 
