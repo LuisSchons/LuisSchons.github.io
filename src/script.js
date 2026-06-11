@@ -13,7 +13,7 @@ const items = [
     // Doces
     { name: "Arroz Doce", cashPrice: 5.00, cardPrice: 5.25, category: "doces", image: "arroz-doce.png", ownerGroup: "2º de Informática", fichaLimit: null },
     { name: "Maçã do Amor", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "maca-amor.png", ownerGroup: "1º de Informática", fichaLimit: 200 },
-    { name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", ownerGroup: "1º de Desenvolvimento de Sistemas", fichaLimit: 80 },
+    //{ name: "Canjica", cashPrice: 6.00, cardPrice: 6.30, category: "doces", image: "canjica.png", ownerGroup: "1º de Desenvolvimento de Sistemas", fichaLimit: 80 },
 
     // Bebidas
     { name: "Água Mineral", cashPrice: 2.00, cardPrice: 2.10, category: "bebidas", image: "agua-sem-gas.png", ownerGroup: "3º anos - compartilhado", fichaLimit: 48 },
@@ -56,8 +56,8 @@ const STUDENT_GROUPS = {
     primeiroDs: {
         label: "1º de Desenvolvimento de Sistemas",
         password: "1DS-IF-X6mV2jQa",
-        allowedItems: ["Canjica"]
-    }
+        allowedItems:["Canjica"]
+     } 
 };
 ;
 
