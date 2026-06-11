@@ -6,7 +6,7 @@ const items = [
     { name: "Pastel", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "pastel.png", ownerGroup: "3º de Informática", fichaLimit: 200 },
     { name: "Cachorro Quente Tradicional", cashPrice: 8.00, cardPrice: 8.40, category: "salgados", image: "cachorro-quente.png", description: "Pão, molho de salsicha e batata palha", ownerGroup: "2º de Mineração", fichaLimit: 140 },
     { name: "Cachorro Quente Completo", cashPrice: 10.00, cardPrice: 10.50, category: "salgados", image: "cachorro-quente-completo.png", description: "Tradicional com purê de batata e bacon", ownerGroup: "2º de Mineração", fichaLimit: 130 },
-    { name: "Pipoca Doce/Salgada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-doce.png", ownerGroup: "2º de Informática", fichaLimit: 150 },
+    { name: "Pipoca Salgada/Amanteigada", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "pipoca-sal.png", ownerGroup: "2º de Informática", fichaLimit: 150 },
     { name: "Pipoca de Leite Ninho", cashPrice: 8.00, cardPrice: 8.40, category: "doces", image: "pipoca-leite-ninho.png", ownerGroup: "2º de Informática", fichaLimit: 50 },
     { name: "Milho Cozido", cashPrice: 6.00, cardPrice: 6.30, category: "salgados", image: "milho.png", ownerGroup: "2º de Informática", fichaLimit: 70 },
 
